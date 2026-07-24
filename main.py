@@ -8,5 +8,6 @@ if __name__ == "__main__":
         print("NO FILE.\n")
         sys.exit()
 
-    parsing_entry(sys.argv[1])
-
+    if not parsing_entry(sys.argv[1]):
+        print("END.\n")
+        sys.exit()
