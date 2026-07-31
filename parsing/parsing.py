@@ -59,7 +59,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
             else:
                 start_hub: Hub = Hub(start_hub_result[1][0], start_hub_result[1][1])
 
-            
+            my_file_content.start_hub = start_hub
 
 
 
