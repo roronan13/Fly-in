@@ -1,9 +1,13 @@
 import sys
 
 from file_content import FileContent
+from file_content import Hub
 
 
 # class BadParsing(Exception):
+
+
+def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int]]]:
 
 
 def parsing_entry(file: str, my_file_content: FileContent) -> bool:
@@ -16,8 +20,8 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Empty File !\n")
                 return (False)
 
-            for line in lines_list:
-                print(f"{line}", end="")
+            # for line in lines_list:
+            #     print(f"{line}", end="")
 
             nb_drones_line = lines_list[0].strip()
             if nb_drones_line.startswith("#"):
@@ -36,6 +40,27 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
             else:
                 print("Syntax nb_drones: <int> !\n")
                 return (False)
+
+            nb_of_start_hub: int = 0
+            for line in lines_list:
+                if line.startswith("start_hub:"):
+                    start_hub_string: str = line
+                    nb_of_start_hub += 1
+
+            if nb_of_start_hub is not 1:
+                print("Only one start_hub !\n")
+                return (False)
+            
+            start_hub_result: tuple[bool, tuple[str, tuple[int, int]]] = check_hubs_lines(start_hub_string)
+            if not start_hub_result[0]:
+                print("Wrong syntax for start_hub !\n")
+                return (False)
+            
+            else:
+                start_hub: Hub = Hub(start_hub_result[1][0], start_hub_result[1][1])
+
+            
+
 
 
             return (True)
