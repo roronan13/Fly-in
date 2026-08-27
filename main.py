@@ -5,7 +5,7 @@ from file_content import FileContent
 
 
 if __name__ == "__main__":
-    
+
     if len(sys.argv) < 2:
         print("NO FILE.\n")
         sys.exit()
@@ -18,5 +18,8 @@ if __name__ == "__main__":
 
     print(f"{my_file_content.nb_drones}\n")
     print("OKAY.\n")
+    print(f"{my_file_content.start_hub.name}")
+    print(f"{my_file_content.start_hub.coordinates}")
+    print("OKAY AGAIN.\n")
 
     sys.exit()
