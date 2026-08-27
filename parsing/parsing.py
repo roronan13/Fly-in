@@ -10,14 +10,14 @@ from file_content import Hub
 # class BadParsing(Exception):
 
 
-def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int]]]:
+def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[str]]]:
     valid_line: bool = False
 
     splited_line: list[str]
     splited_line = line.split(" ")
-    if len(splited_line) < 4:
-        print(f"Not enough data for {line} !\n")
-        return (False, ("NO-NAME", (-1, -1)))
+    if len(splited_line) != 5:
+        print(f"Wrong number of data for {line} !\n")
+        return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
     hub_name: str
     try:
@@ -41,6 +41,16 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int]]]:
     #     print("Coordinates must be positive int !\n")
     #     valid_line = False
 
+    if ("[") in line and ("]") in line:
+        meta_data_section: str = line[:line.index("[")]
+        splited_meta_data_section: list[str] = meta_data_section.split()
+        for meta_data in splited_meta_data_section:
+            while meta_data 
+
+    else:
+        print(f"No meta-data for {line} !\n")
+        return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
+
     transformed_line = (valid_line, (hub_name, (coordinates)))
     return (transformed_line)
 
@@ -55,9 +65,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Empty File !\n")
                 return (False)
 
-            # for line in lines_list:
-            #     print(f"{line}", end="")
-
+# check nb drones
             nb_drones_line = lines_list[0].strip()
             if nb_drones_line.startswith("#"):
                 nb_drones_line = lines_list[1].strip()
@@ -76,6 +84,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Syntax nb_drones: <int> !\n")
                 return (False)
 
+# check start hub
             nb_of_start_hub: int = 0
             for line in lines_list:
                 if line.startswith("start_hub:"):
@@ -94,6 +103,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
             else:
                 start_hub: Hub = Hub(start_hub_result[1][0], start_hub_result[1][1])
 
+# check end hub
             nb_of_end_hub: int = 0
             for line in lines_list:
                 if line.startswith("end_hub:"):
@@ -114,6 +124,18 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
             my_file_content.start_hub = start_hub
             my_file_content.end_hub = end_hub
+
+# check hubs
+            for line in lines_list:
+                if line.startswith("hub: "):
+                    hub_result: tuple[bool, tuple[str, tuple[int, int]]] = check_hubs_lines(line)
+
+                    if not hub_result[0]:
+                        print(f"Wrong syntax for {line} !\n")
+                        return (False)
+                    else:
+                        hub: Hub = Hub(hub_result[1][0], hub_result[1][1])
+                        my_file_content.hubs_list.append(hub)
 
             return (True)
 
