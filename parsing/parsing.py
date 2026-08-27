@@ -165,6 +165,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 names_list.append(hub.name)
 
             if len(names_list) != len(set(names_list)):
+                print("Hubs name must be unique !")
                 return (False)
 
             return (True)

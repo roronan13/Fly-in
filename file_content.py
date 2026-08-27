@@ -3,6 +3,7 @@ class Hub:
         self.coordinates: tuple[int, int] = coordinates
         self.name: str = name
         self.meta_data: list[str] = meta_data
+        self.connections_list: list = [Hub]
 
 
 class FileContent:
