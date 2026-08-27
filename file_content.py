@@ -2,7 +2,7 @@ class Hub:
     def __init__(self, name: str, coordinates: tuple[int, int], meta_data: list[str]) -> None:
         self.coordinates: tuple[int, int] = coordinates
         self.name: str = name
-        self.meta_data = []
+        self.meta_data: list[str] = meta_data
 
 
 class FileContent:

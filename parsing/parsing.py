@@ -44,20 +44,21 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
     if ("[") in line and ("]") in line:
         valid_meta_data: str
         meta_datas_list: list[str] = []
-        meta_data_section: str = line[:line.index("[")].strip("[]")
+        meta_data_section: str = line[line.index("["):line.index("]")].strip("[]")
         splited_meta_data_section: list[str] = meta_data_section.split(" ")
+
+        nb_color: int = 0
+        nb_zone: int = 0
+        nb_max_drones: int = 0
         for meta_data in splited_meta_data_section:
             if meta_data.startswith("color=") or meta_data.startswith("zone=") or meta_data.startswith("max_drones="):
                 valid_meta_data = meta_data
                 meta_datas_list.append(valid_meta_data)
 
-                nb_color: int = 0
                 if meta_data.startswith("color="):
                     nb_color += 1
-                nb_zone: int = 0
                 if meta_data.startswith("zone="):
                     nb_zone += 1
-                nb_max_drones: int = 0
                 if meta_data.startswith("nb_max_drones="):
                     nb_max_drones += 1
 
@@ -69,6 +70,7 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
         print(f"No meta-data for {line} !\n")
         return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
+    # print(f"{meta_datas_list}")
     transformed_line = (valid_line, (hub_name, coordinates, meta_datas_list))
     return (transformed_line)
 
