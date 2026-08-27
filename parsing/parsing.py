@@ -157,6 +157,16 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                         hub: Hub = Hub(hub_result[1][0], hub_result[1][1], hub_result[1][2])
                         my_file_content.hubs_list.append(hub)
 
+# check doublons noms
+            names_list: list[str] = []
+            names_list.append(my_file_content.start_hub.name)
+            names_list.append(my_file_content.end_hub.name)
+            for hub in my_file_content.hubs_list:
+                names_list.append(hub.name)
+
+            if len(names_list) != len(set(names_list)):
+                return (False)
+
             return (True)
 
     except (FileNotFoundError, PermissionError) as e:
