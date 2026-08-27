@@ -16,8 +16,8 @@ if __name__ == "__main__":
         print("END.\n")
         sys.exit()
 
-    print(f"{my_file_content.nb_drones}\n")
-    print("OKAY.\n")
+    print(f"{my_file_content.nb_drones}")
+    print("OKAY.")
     print(f"{my_file_content.start_hub.name}")
     print(f"{my_file_content.start_hub.coordinates}")
     print("OKAY AGAIN.\n")

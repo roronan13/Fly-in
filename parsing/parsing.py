@@ -3,6 +3,9 @@ import sys
 from file_content import FileContent
 from file_content import Hub
 
+# l = ""
+# if ("#") in l:
+#     l = l[:l.index("#")].strip()
 
 # class BadParsing(Exception):
 
@@ -13,22 +16,30 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int]]]:
     splited_line: list[str]
     splited_line = line.split(" ")
     if len(splited_line) < 4:
-        print("Not enough data for start_hub line !\n")
+        print(f"Not enough data for {line} !\n")
         return (False, ("NO-NAME", (-1, -1)))
 
     hub_name: str
     try:
-        hub_name = splited_line[1]
+        hub_name = str(splited_line[1])
         valid_line = True
     except ValueError as e:
-        print(f"Start_hub must have a valid name ! \n{e}\n")
+        print(f"{line} must have a valid name ! \n{e}\n")
+        hub_name = "NO_NAME"
 
     try:
-        coordinates: tuple[int, int] = (splited_line[2], splited_line[3])
+        coordinates: tuple[int, int] = (int(splited_line[2]), int(splited_line[3]))
+        coordinates[0] > -1
+        coordinates[1] > -1
         valid_line = True
     except ValueError as e:
-        print(f"Start_hub must have valid int coordinates ! \n{e}\n")
+        print(f"{line} must have valid int coordinates ! \n{e}\n")
+        coordinates = (-1, -1)
         valid_line = False
+
+    # if coordinates[0] < 0 or coordinates[1] < 0:
+    #     print("Coordinates must be positive int !\n")
+    #     valid_line = False
 
     transformed_line = (valid_line, (hub_name, (coordinates)))
     return (transformed_line)
@@ -83,7 +94,26 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
             else:
                 start_hub: Hub = Hub(start_hub_result[1][0], start_hub_result[1][1])
 
+            nb_of_end_hub: int = 0
+            for line in lines_list:
+                if line.startswith("end_hub:"):
+                    end_hub_string: str = line
+                    nb_of_end_hub += 1
+
+            if nb_of_end_hub != 1:
+                print("Only one end_hub !\n")
+                return (False)
+
+            end_hub_result: tuple[bool, tuple[str, tuple[int, int]]] = check_hubs_lines(end_hub_string)
+            if not end_hub_result[0]:
+                print("Wrong syntax for end_hub !\n")
+                return (False)
+
+            else:
+                end_hub: Hub = Hub(end_hub_result[1][0], end_hub_result[1][1])
+
             my_file_content.start_hub = start_hub
+            my_file_content.end_hub = end_hub
 
             return (True)
 
