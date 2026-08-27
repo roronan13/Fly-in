@@ -25,7 +25,7 @@ if __name__ == "__main__":
     print(f"{my_file_content.end_hub.coordinates}")
     print("OKAY AGAIN AGAIN.\n")
     for hub in my_file_content.hubs_list:
-        print(f"{hub.name} {hub.coordinates}")
+        print(f"{hub.name} {hub.coordinates} {hub.hubs}")
     print("OKAY AGAIN AGAIN AGAIN.\n")
 
     sys.exit()

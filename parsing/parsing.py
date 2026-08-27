@@ -42,16 +42,34 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
     #     valid_line = False
 
     if ("[") in line and ("]") in line:
-        meta_data_section: str = line[:line.index("[")]
-        splited_meta_data_section: list[str] = meta_data_section.split()
+        valid_meta_data: str
+        meta_datas_list: list[str] = []
+        meta_data_section: str = line[:line.index("[")].strip("[]")
+        splited_meta_data_section: list[str] = meta_data_section.split(" ")
         for meta_data in splited_meta_data_section:
-            while meta_data 
+            if meta_data.startswith("color=") or meta_data.startswith("zone=") or meta_data.startswith("max_drones="):
+                valid_meta_data = meta_data
+                meta_datas_list.append(valid_meta_data)
+
+                nb_color: int = 0
+                if meta_data.startswith("color="):
+                    nb_color += 1
+                nb_zone: int = 0
+                if meta_data.startswith("zone="):
+                    nb_zone += 1
+                nb_max_drones: int = 0
+                if meta_data.startswith("nb_max_drones="):
+                    nb_max_drones += 1
+
+        if nb_color > 1 or nb_zone > 1 or nb_max_drones > 1:
+            print(f"Wrong meta-data syntax for {line} !\n")
+            return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
     else:
         print(f"No meta-data for {line} !\n")
         return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
-    transformed_line = (valid_line, (hub_name, (coordinates)))
+    transformed_line = (valid_line, (hub_name, coordinates, meta_datas_list))
     return (transformed_line)
 
 
@@ -95,13 +113,13 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Only one start_hub !\n")
                 return (False)
 
-            start_hub_result: tuple[bool, tuple[str, tuple[int, int]]] = check_hubs_lines(start_hub_string)
+            start_hub_result: tuple[bool, tuple[str, tuple[int, int], list[str]]] = check_hubs_lines(start_hub_string)
             if not start_hub_result[0]:
                 print("Wrong syntax for start_hub !\n")
                 return (False)
 
             else:
-                start_hub: Hub = Hub(start_hub_result[1][0], start_hub_result[1][1])
+                start_hub: Hub = Hub(start_hub_result[1][0], start_hub_result[1][1], start_hub_result[1][2])
 
 # check end hub
             nb_of_end_hub: int = 0
@@ -114,13 +132,13 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Only one end_hub !\n")
                 return (False)
 
-            end_hub_result: tuple[bool, tuple[str, tuple[int, int]]] = check_hubs_lines(end_hub_string)
+            end_hub_result: tuple[bool, tuple[str, tuple[int, int]], list[str]] = check_hubs_lines(end_hub_string)
             if not end_hub_result[0]:
                 print("Wrong syntax for end_hub !\n")
                 return (False)
 
             else:
-                end_hub: Hub = Hub(end_hub_result[1][0], end_hub_result[1][1])
+                end_hub: Hub = Hub(end_hub_result[1][0], end_hub_result[1][1], end_hub_result[1][2])
 
             my_file_content.start_hub = start_hub
             my_file_content.end_hub = end_hub
@@ -128,13 +146,13 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 # check hubs
             for line in lines_list:
                 if line.startswith("hub: "):
-                    hub_result: tuple[bool, tuple[str, tuple[int, int]]] = check_hubs_lines(line)
+                    hub_result: tuple[bool, tuple[str, tuple[int, int]], list[str]] = check_hubs_lines(line)
 
                     if not hub_result[0]:
                         print(f"Wrong syntax for {line} !\n")
                         return (False)
                     else:
-                        hub: Hub = Hub(hub_result[1][0], hub_result[1][1])
+                        hub: Hub = Hub(hub_result[1][0], hub_result[1][1], hub_result[1][2])
                         my_file_content.hubs_list.append(hub)
 
             return (True)
