@@ -27,11 +27,14 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
         print(f"{line} must have a valid name ! \n{e}\n")
         hub_name = "NO_NAME"
 
+# check coordinates sont int, et positives
     try:
         coordinates: tuple[int, int] = (int(splited_line[2]), int(splited_line[3]))
-        coordinates[0] > -1
-        coordinates[1] > -1
-        valid_line = True
+        if coordinates[0] > -1 and coordinates[1] > -1:
+            valid_line = True
+        else:
+            print("Coordinates must be positive int ! \n")
+            valid_line = False
     except ValueError as e:
         print(f"{line} must have valid int coordinates ! \n{e}\n")
         coordinates = (-1, -1)
@@ -41,6 +44,7 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
     #     print("Coordinates must be positive int !\n")
     #     valid_line = False
 
+# check meta data
     if ("[") in line and ("]") in line:
         valid_meta_data: str
         meta_datas_list: list[str] = []
@@ -62,19 +66,20 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
                 if meta_data.startswith("nb_max_drones="):
                     nb_max_drones += 1
 
-        if nb_color > 1 or nb_zone > 1 or nb_max_drones > 1:
+# check pas deux fois meta data
+        if (nb_color > 1 or nb_zone > 1 or nb_max_drones > 1):
             print(f"Wrong meta-data syntax for {line} !\n")
             return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
     else:
-        print(f"No meta-data for {line} !\n")
-        return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
+        # print(f"No meta-data for {line} !\n")
+        return (valid_line, (hub_name, coordinates, ["NO-META-DATA"]))
 
-    # print(f"{meta_datas_list}")
     transformed_line = (valid_line, (hub_name, coordinates, meta_datas_list))
     return (transformed_line)
 
 
+# debut fonction parsing 
 def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
     try:
