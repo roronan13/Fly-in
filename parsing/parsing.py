@@ -180,6 +180,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Hubs name must be unique !")
                 return (False)
 
+            existing_connections: set[frozenset[str]] = set()
 # check connections
             for line in lines_list:
                 if line.startswith("connection: "):
@@ -211,12 +212,21 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
 # check hubs existent
                     if splited_connection_str[0] not in existing_hubs or splited_connection_str[1] not in existing_hubs:
-                        print(f"For line {line} : connection can't be created ! \n")
+                        print(f"For line {line} : connection can't be created ! (hub does not exist) \n")
                         return (False)
 
-                    existing_connections: set[frozenset[str]] = set() 
-                    
+# check 2 hubs differents pour une connection
+                    if splited_connection_str[0] == splited_connection_str[1]:
+                        print(f"For line {line} : Connections must have two different hubs ! \n")
+                        return (False)
 
+# check connection inexistante
+                    two_hubs_frozenset: frozenset[str] = frozenset((splited_connection_str[0], splited_connection_str[1]))
+                    if two_hubs_frozenset in existing_connections:
+                        print("Connections must be given only once ! \n")
+                        return (False)
+                    else:
+                        existing_connections.add(two_hubs_frozenset)
 
             return (True)
 
