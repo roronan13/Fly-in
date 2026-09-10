@@ -25,6 +25,7 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
         print(f"Wrong number of data for {line} !\n")
         return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
+# check que le nom est bien un str
     hub_name: str
     try:
         hub_name = str(splited_start_of_line[1])
@@ -179,7 +180,22 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Hubs name must be unique !")
                 return (False)
 
+# check connections
+            for line in lines_list:
+                if line.startswith("connection: "):
+                    start_of_line: str = line.split("[", 1)[0]
+                    splited_start_of_line: list[str] = start_of_line.split(" ")
+
+                    if len(splited_start_of_line) != 3:
+                        print(f"Wrong number of data for {line} !\n")
+                        return (False)
+
+                    
+
+
             return (True)
+
+        
 
     except (FileNotFoundError, PermissionError) as e:
         print(f"{e}\n")
