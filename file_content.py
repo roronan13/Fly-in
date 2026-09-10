@@ -30,6 +30,9 @@ class Hub:
                 if one_meta_data.startswith("max_drones="):
                     try:
                         self.max_drones: int = int(one_meta_data.split("=")[1])
+                        if self.max_drones < 0:
+                            print("max_drones must be a positive int ! \n")
+                            sys.exit()
                         nb_max_drones += 1
                     except ValueError as e:
                         print(f"max_drones in meta_data must be an int ! \n{e}\n")

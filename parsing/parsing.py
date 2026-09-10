@@ -13,15 +13,21 @@ from file_content import Hub
 def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[str]]]:
     valid_line: bool = False
 
-    splited_line: list[str]
-    splited_line = line.split(" ")
-    if len(splited_line) != 5:
+    start_of_line: str = line.split("[", 1)[0]
+    splited_start_of_line: list[str] = start_of_line.split(" ")
+
+# plus besoin ?
+    # splited_line: list[str]
+    # splited_line = line.split(" ")
+
+# check nb de donnees avant crochets
+    if len(splited_start_of_line) != 5:
         print(f"Wrong number of data for {line} !\n")
         return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
     hub_name: str
     try:
-        hub_name = str(splited_line[1])
+        hub_name = str(splited_start_of_line[1])
         valid_line = True
     except ValueError as e:
         print(f"{line} must have a valid name ! \n{e}\n")
@@ -29,7 +35,7 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
 
 # check coordinates sont int, et positives
     try:
-        coordinates: tuple[int, int] = (int(splited_line[2]), int(splited_line[3]))
+        coordinates: tuple[int, int] = (int(splited_start_of_line[2]), int(splited_start_of_line[3]))
         if coordinates[0] > -1 and coordinates[1] > -1:
             valid_line = True
         else:
