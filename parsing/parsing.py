@@ -14,14 +14,14 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
     valid_line: bool = False
 
     start_of_line: str = line.split("[", 1)[0]
-    splited_start_of_line: list[str] = start_of_line.split(" ")
+    splited_start_of_line: list[str] = start_of_line.split()
 
 # plus besoin ?
     # splited_line: list[str]
     # splited_line = line.split(" ")
 
 # check nb de donnees avant crochets
-    if len(splited_start_of_line) != 5:
+    if len(splited_start_of_line) != 4:
         print(f"Wrong number of data for {line} !\n")
         return (False, ("NO-NAME", (-1, -1), ["NO-META-DATA"]))
 
@@ -184,18 +184,43 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
             for line in lines_list:
                 if line.startswith("connection: "):
                     start_of_line: str = line.split("[", 1)[0]
-                    splited_start_of_line: list[str] = start_of_line.split(" ")
+                    splited_start_of_line: list[str] = start_of_line.split()
 
-                    if len(splited_start_of_line) != 3:
+# check bon nombre de donnees avant crochets
+                    if len(splited_start_of_line) != 2:
                         print(f"Wrong number of data for {line} !\n")
                         return (False)
 
+# check tiret section connection
+                    connection_str: str = splited_start_of_line[1]
+                    if "-" not in connection_str:
+                        print(f"Wrong syntax for {line} ! \n")
+                        return (False)
+
+# check section connection ok
+                    splited_connection_str: list[str] = connection_str.split("-")
+                    if len(splited_connection_str) != 2:
+                        print(f"Wrong syntax for {line} ! \n")
+                        return (False)
+
+                    existing_hubs: list[str] = []
+                    existing_hubs.append(my_file_content.start_hub.name)
+                    existing_hubs.append(my_file_content.end_hub.name)
+                    for hub in my_file_content.hubs_list:
+                        existing_hubs.append(hub.name)
+
+# check hubs existent
+                    if splited_connection_str[0] not in existing_hubs or splited_connection_str[1] not in existing_hubs:
+                        print(f"For line {line} : connection can't be created ! \n")
+                        return (False)
+
+                    existing_connections: set[frozenset[str]] = set() 
                     
 
 
             return (True)
 
-        
+
 
     except (FileNotFoundError, PermissionError) as e:
         print(f"{e}\n")
