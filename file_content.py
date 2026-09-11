@@ -6,7 +6,7 @@ class Hub:
         self.coordinates: tuple[int, int] = coordinates
         self.name: str = name
         self.meta_data: list[str] = meta_data
-        self.connections_list: list = [Hub]
+        self.connections_list: list = [Hub] # ??
         nb_zone: int = 0
         nb_color: int = 0
         nb_max_drones: int = 0

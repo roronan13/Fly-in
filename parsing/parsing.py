@@ -156,6 +156,8 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
             my_file_content.start_hub = start_hub
             my_file_content.end_hub = end_hub
+            # my_file_content.hubs_list.append(start_hub) # ?
+            # my_file_content.hubs_list.append(end_hub) # ?
 
 # check hubs
             for line in lines_list:
@@ -176,6 +178,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
             for hub in my_file_content.hubs_list:
                 names_list.append(hub.name)
 
+            print(f"{len(names_list)} {len(set(names_list))}")
             if len(names_list) != len(set(names_list)):
                 print("Hubs name must be unique !")
                 return (False)
@@ -227,6 +230,13 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                         return (False)
                     else:
                         existing_connections.add(two_hubs_frozenset)
+
+                    for hub in my_file_content.hubs_list:
+                        if hub.name == splited_connection_str[0]:
+                            for hub_to_connect in my_file_content.hubs_list:
+                                if hub_to_connect == splited_connection_str[1]:
+                                    hub.connections_list.append(hub_to_connect)
+                                    hub_to_connect.connections_list.append(hub)
 
             return (True)
 

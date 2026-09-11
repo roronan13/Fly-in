@@ -16,6 +16,13 @@ if __name__ == "__main__":
         print("END.\n")
         sys.exit()
 
+    my_file_content.hubs_list.append(my_file_content.start_hub)
+    my_file_content.hubs_list.append(my_file_content.end_hub)
+
+    print(f"{len(my_file_content.hubs_list)}")
+    for hub in my_file_content.hubs_list:
+                            print(f"{hub.name}")
+
     print(f"{my_file_content.nb_drones}\n")
     print(f"{my_file_content.start_hub.name}")
     print(f"{my_file_content.start_hub.coordinates}")
@@ -29,5 +36,7 @@ if __name__ == "__main__":
     print(f"{my_file_content.end_hub.max_drones}\n")
     for hub in my_file_content.hubs_list:
         print(f"{hub.name} {hub.coordinates} {hub.zone} {hub.color} {hub.max_drones}")
+        for connected_hub in hub.connections_list:
+            print(f"{connected_hub.name}")
 
     sys.exit()
