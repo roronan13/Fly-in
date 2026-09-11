@@ -35,9 +35,9 @@ if __name__ == "__main__":
     # print(f"{my_file_content.end_hub.color}")
     # print(f"{my_file_content.end_hub.max_drones}\n")
     for hub in my_file_content.hubs_list:
-        print(f"\n{hub.name} {hub.coordinates} {hub.zone} {hub.color} {hub.max_drones}")
+        print(f"\n\n{hub.name} {hub.coordinates} {hub.zone} {hub.color} {hub.max_drones}")
         print(f"{len(hub.connections_list)}")
-        for connected_hub in hub.connections_list:
-            print(f"{connected_hub.name}")
+        for connection in hub.connections_list:
+            print(f"{connection[0].name} - {connection[1]}")
 
     sys.exit()

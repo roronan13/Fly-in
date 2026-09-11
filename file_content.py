@@ -12,13 +12,17 @@ class Hub:
         nb_max_drones: int = 0
 
         if len(meta_data) == 0:
-            self.zone = "normal"
-            self.color = "none"
-            self.max_drones = 1
+            self.zone: str = "normal"
+            self.color: str = "none"
+            self.max_drones: int = 1
         else:
             for one_meta_data in meta_data:
                 if one_meta_data.startswith("zone="):
-                    self.zone: str = one_meta_data.split("=")[1]
+                    received_zone_type: str = one_meta_data.split("=")[1]
+                    if received_zone_type not in ["normal", "blocked", "restricted", "priority"]:
+                        print("zone type for hubs must be either normal, blocked, restricted or priority ! \n")
+                        sys.exit()
+                    self.zone: str = received_zone_type
                     nb_zone += 1
                 elif nb_zone == 0:
                     self.zone = "normal"

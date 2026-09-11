@@ -233,12 +233,25 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                     else:
                         existing_connections.add(two_hubs_frozenset)
 
+                    max_capacity_int: int = 1
+                    if "[" in line and "]" in line:
+                        connection_meta: str = line[line.index("["):line.index("]")].strip("[]")
+                        if connection_meta.startswith("max_link_capacity="):
+                            try:
+                                max_capacity_int = int(connection_meta.split("=")[1])
+                            except ValueError as e:
+                                print(f"max_link_capacity must be an int ! {e} \n")
+                                return (False)
+                            if max_capacity_int < 0:
+                                print("max_link_capacity must be positive ! \n")
+                                return (False)
+
                     for hub in my_file_content.hubs_list:
                         if hub.name == splited_connection_str[0]:
                             for hub_to_connect in my_file_content.hubs_list:
                                 if hub_to_connect.name == splited_connection_str[1]:
-                                    hub.connections_list.append(hub_to_connect)
-                                    hub_to_connect.connections_list.append(hub)
+                                    hub.connections_list.append((hub_to_connect, max_capacity_int))
+                                    hub_to_connect.connections_list.append((hub, max_capacity_int))
 
             return (True)
 
