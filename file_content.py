@@ -20,7 +20,7 @@ class Hub:
                 if one_meta_data.startswith("zone="):
                     received_zone_type: str = one_meta_data.split("=")[1]
                     if received_zone_type not in ["normal", "blocked", "restricted", "priority"]:
-                        print("zone type for hubs must be either normal, blocked, restricted or priority ! \n")
+                        print(f"{self.name} : zone type for hubs must be either normal, blocked, restricted or priority ! \n")
                         sys.exit()
                     self.zone: str = received_zone_type
                     nb_zone += 1
