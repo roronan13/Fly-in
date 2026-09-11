@@ -37,11 +37,11 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
 # check coordinates sont int, et positives
     try:
         coordinates: tuple[int, int] = (int(splited_start_of_line[2]), int(splited_start_of_line[3]))
-        if coordinates[0] > -1 and coordinates[1] > -1:
-            valid_line = True
-        else:
-            print("Coordinates must be positive int ! \n")
-            valid_line = False
+        # if coordinates[0] > -1 and coordinates[1] > -1:
+        valid_line = True
+        # else:
+        #     print("Coordinates must be positive int ! \n")
+        #     valid_line = False
     except ValueError as e:
         print(f"{line} must have valid int coordinates ! \n{e}\n")
         coordinates = (-1, -1)
@@ -233,17 +233,14 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                     else:
                         existing_connections.add(two_hubs_frozenset)
 
-                    print(f"oui : {len(my_file_content.hubs_list)}")
-                    print(f"{splited_connection_str[0]} - {splited_connection_str[1]}")
                     for hub in my_file_content.hubs_list:
                         if hub.name == splited_connection_str[0]:
                             for hub_to_connect in my_file_content.hubs_list:
-                                if hub_to_connect == splited_connection_str[1]:
+                                if hub_to_connect.name == splited_connection_str[1]:
                                     hub.connections_list.append(hub_to_connect)
                                     hub_to_connect.connections_list.append(hub)
 
             return (True)
-
 
 
     except (FileNotFoundError, PermissionError) as e:
