@@ -156,8 +156,10 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
             my_file_content.start_hub = start_hub
             my_file_content.end_hub = end_hub
-            # my_file_content.hubs_list.append(start_hub) # ?
-            # my_file_content.hubs_list.append(end_hub) # ?
+            # print(f"{len(my_file_content.hubs_list)}")
+            my_file_content.hubs_list.append(start_hub) # ?
+            my_file_content.hubs_list.append(end_hub) # ?
+            # print(f"oui : {len(my_file_content.hubs_list)}")
 
 # check hubs
             for line in lines_list:
@@ -173,12 +175,12 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
 # check doublons noms
             names_list: list[str] = []
-            names_list.append(my_file_content.start_hub.name)
-            names_list.append(my_file_content.end_hub.name)
+            # names_list.append(my_file_content.start_hub.name)
+            # names_list.append(my_file_content.end_hub.name)
             for hub in my_file_content.hubs_list:
                 names_list.append(hub.name)
 
-            print(f"{len(names_list)} {len(set(names_list))}")
+            # print(f"{len(names_list)} {len(set(names_list))}")
             if len(names_list) != len(set(names_list)):
                 print("Hubs name must be unique !")
                 return (False)
@@ -223,7 +225,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                         print(f"For line {line} : Connections must have two different hubs ! \n")
                         return (False)
 
-# check connection inexistante
+# check connection pas deja existante
                     two_hubs_frozenset: frozenset[str] = frozenset((splited_connection_str[0], splited_connection_str[1]))
                     if two_hubs_frozenset in existing_connections:
                         print("Connections must be given only once ! \n")
@@ -231,6 +233,8 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                     else:
                         existing_connections.add(two_hubs_frozenset)
 
+                    print(f"oui : {len(my_file_content.hubs_list)}")
+                    print(f"{splited_connection_str[0]} - {splited_connection_str[1]}")
                     for hub in my_file_content.hubs_list:
                         if hub.name == splited_connection_str[0]:
                             for hub_to_connect in my_file_content.hubs_list:
