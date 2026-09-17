@@ -36,6 +36,7 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
     except ValueError as e:
         print(f"{line} must have a valid name ! \n{e}\n")
         hub_name = "NO_NAME"
+        valid_line = False
 
 # check coordinates sont int, et positives
     try:
@@ -256,10 +257,10 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                             try:
                                 max_capacity_int = int(connection_meta.split("=")[1])
                             except ValueError as e:
-                                print(f"max_link_capacity must be an int ! {e} \n")
+                                print(f"For line {line} : max_link_capacity must be an int ! {e} \n")
                                 return (False)
                             if max_capacity_int < 0:
-                                print("max_link_capacity must be positive ! \n")
+                                print(f"For line {line} : max_link_capacity must be positive ! \n")
                                 return (False)
 
                     for hub in my_file_content.hubs_list:
