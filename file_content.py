@@ -16,9 +16,17 @@ class Hub:
             self.color: str = "none"
             self.max_drones: int = 1
         else:
+            test_multiple_equals: list[str] = []
             for one_meta_data in meta_data:
                 if one_meta_data.startswith("zone="):
+                    test_multiple_equals = one_meta_data.split("=")
+                    if len(test_multiple_equals) != 2:
+                        print(f"{self.name} : wrong syntax for meta_data !\n")
+                        sys.exit()
                     received_zone_type: str = one_meta_data.split("=")[1]
+                    # if received_zone_type == "":
+
+                    #     sys.exit()
                     if received_zone_type not in ["normal", "blocked", "restricted", "priority"]:
                         print(f"{self.name} : zone type for hubs must be either normal, blocked, restricted or priority ! \n")
                         sys.exit()
@@ -27,11 +35,22 @@ class Hub:
                 elif nb_zone == 0:
                     self.zone = "normal"
                 if one_meta_data.startswith("color="):
+                    test_multiple_equals = one_meta_data.split("=")
+                    if len(test_multiple_equals) != 2:
+                        print(f"{self.name} : wrong syntax for meta_data !\n")
+                        sys.exit()
                     self.color: str = one_meta_data.split("=")[1]
+                    if self.color == "":
+                        print(f"{self.name} : color must be specified !\n")
+                        sys.exit()
                     nb_color += 1
                 elif nb_color == 0:
                     self.color = "none"
                 if one_meta_data.startswith("max_drones="):
+                    test_multiple_equals = one_meta_data.split("=")
+                    if len(test_multiple_equals) != 2:
+                        print(f"{self.name} : wrong syntax for meta_data !\n")
+                        sys.exit()
                     try:
                         self.max_drones: int = int(one_meta_data.split("=")[1])
                         if self.max_drones < 0:
