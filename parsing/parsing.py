@@ -28,8 +28,11 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
 # check que le nom est bien un str
     hub_name: str
     try:
-        hub_name = str(splited_start_of_line[1])
+        hub_name = str(splited_start_of_line[1]).strip()
         valid_line = True
+        if "-" in hub_name:
+            valid_line = False
+            print("Dashes are forbidden in hub names !\n")
     except ValueError as e:
         print(f"{line} must have a valid name ! \n{e}\n")
         hub_name = "NO_NAME"
