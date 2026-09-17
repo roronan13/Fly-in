@@ -83,6 +83,7 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
 
     else:
         # print(f"No meta-data for {line} !\n")
+        # print("oui\n")
         return (valid_line, (hub_name, coordinates, ["NO-META-DATA"]))
 
     transformed_line = (valid_line, (hub_name, coordinates, meta_datas_list))
@@ -185,6 +186,7 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                         return (False)
                     else:
                         hub: Hub = Hub(hub_result[1][0], hub_result[1][1], hub_result[1][2])
+                        # print(f"metadata : {hub_result[1][2]}\n")
                         my_file_content.hubs_list.append(hub)
 
 # check doublons noms
