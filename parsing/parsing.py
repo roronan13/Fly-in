@@ -91,29 +91,40 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
     try:
         with open(file, "r") as file_opened:
-            lines_list: list[str] = file_opened.readlines()
+            first_lines_list: list[str] = file_opened.readlines()
+
+            if not first_lines_list:
+                print("Empty file !\n")
+                return (False)
+
+            lines_list: list[str] = []
+            for first_lines in first_lines_list:
+                if not first_lines.startswith("#") and not first_lines.startswith(" ") and not first_lines.startswith("\n"):
+                    lines_list.append(first_lines)
 
             if not lines_list:
-                print("Empty File !\n")
+                print("Something went wrong with the syntax of the file !\n")
                 return (False)
 
 # check nb drones
             nb_drones_line = lines_list[0].strip()
-            if nb_drones_line.startswith("#"):
-                nb_drones_line = lines_list[1].strip()
+            # print(f"{lines_list[0]}\n")
+            # if nb_drones_line.startswith("#"):
+            #     nb_drones_line = lines_list[1].strip() # n'est plus utile
 
             if nb_drones_line.startswith("nb_drones: "):
                 try:
                     nb_drones: int = int(nb_drones_line.split(": ")[1])
                     if nb_drones < 0:
                         print("Negative nb_drones !\n")
+                        return (False)
                     my_file_content.nb_drones = nb_drones
                 except ValueError as e:
                     print(f"nb_drones must be int ! \n{e}\n")
                     return (False)
 
             else:
-                print("Syntax nb_drones: <int> !\n")
+                print("nb_drones line must be the first line !\n")
                 return (False)
 
 # check start hub
