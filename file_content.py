@@ -1,12 +1,22 @@
 import sys
 
 
+class Connection:
+    def __init__(self, destination: Hub, capacity: int) -> None:
+        self.destination: Hub = destination
+        self.capacity: int = capacity
+
+
+class Drone:
+    
+
+
 class Hub:
     def __init__(self, name: str, coordinates: tuple[int, int], meta_data: list[str]) -> None:
         self.coordinates: tuple[int, int] = coordinates
         self.name: str = name
         self.meta_data: list[str] = meta_data
-        self.connections_list: list[tuple[Hub, int]] = []# ??
+        self.connections_list: list[Connection] = []# ??
         nb_zone: int = 0
         nb_color: int = 0
         nb_max_drones: int = 0
