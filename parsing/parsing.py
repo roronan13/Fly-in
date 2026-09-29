@@ -278,7 +278,6 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
 
             return (True)
 
-
     except (FileNotFoundError, PermissionError) as e:
         print(f"{e}\n")
         return (False)

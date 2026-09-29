@@ -7,9 +7,11 @@ class Connection:
         self.capacity: int = capacity
 
 
-# class Drone:
-    
-
+class Drone:
+    def __init__(self, id: int, start_hub: Hub) -> None:
+        self.id: int = id
+        self.current_hub: Hub | None = 
+        
 
 class Hub:
     def __init__(self, name: str, coordinates: tuple[int, int], meta_data: list[str]) -> None:
