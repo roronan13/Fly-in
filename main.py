@@ -38,6 +38,6 @@ if __name__ == "__main__":
         print(f"\n\n{hub.name} {hub.coordinates} zone_type: {hub.zone}, color: {hub.color}, max_drones: {hub.max_drones}")
         print(f"connected to {len(hub.connections_list)}")
         for connection in hub.connections_list:
-            print(f"{connection[0].name} (max_link_capacity : {connection[1]})")
+            print(f"{connection.destination.name} (max_link_capacity : {connection.capacity})")
 
     sys.exit()

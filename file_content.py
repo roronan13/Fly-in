@@ -2,12 +2,12 @@ import sys
 
 
 class Connection:
-    def __init__(self, destination: Hub, capacity: int) -> None:
-        self.destination: Hub = destination
+    def __init__(self, destination: "Hub", capacity: int) -> None:
+        self.destination: "Hub" = destination
         self.capacity: int = capacity
 
 
-class Drone:
+# class Drone:
     
 
 

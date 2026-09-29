@@ -2,6 +2,7 @@ import sys
 
 from file_content import FileContent
 from file_content import Hub
+from file_content import Connection
 
 # l = ""
 # if ("#") in l:
@@ -267,8 +268,13 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                         if hub.name == splited_connection_str[0]:
                             for hub_to_connect in my_file_content.hubs_list:
                                 if hub_to_connect.name == splited_connection_str[1]:
-                                    hub.connections_list.append((hub_to_connect, max_capacity_int))
-                                    hub_to_connect.connections_list.append((hub, max_capacity_int))
+                                    connection: Connection = Connection(hub_to_connect, max_capacity_int)
+                                    reverse_connection: Connection = Connection(hub, max_capacity_int)
+                                    hub.connections_list.append(connection)
+                                    hub_to_connect.connections_list.append(reverse_connection)
+
+                                    # hub.connections_list.append((hub_to_connect, max_capacity_int))
+                                    # hub_to_connect.connections_list.append((hub, max_capacity_int))
 
             return (True)
 
