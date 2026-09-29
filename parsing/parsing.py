@@ -121,8 +121,8 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
             if nb_drones_line.startswith("nb_drones: "):
                 try:
                     nb_drones: int = int(nb_drones_line.split(": ")[1])
-                    if nb_drones < 0:
-                        print("Negative nb_drones !\n")
+                    if nb_drones < 1:
+                        print("nb_drones must be strictly positive !\n")
                         return (False)
                     my_file_content.nb_drones = nb_drones
                 except ValueError as e:

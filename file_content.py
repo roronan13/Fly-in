@@ -8,10 +8,18 @@ class Connection:
 
 
 class Drone:
-    def __init__(self, id: int, start_hub: Hub) -> None:
+    def __init__(self, id: int, start_hub: "Hub") -> None:
         self.id: int = id
-        self.current_hub: Hub | None = 
-        
+        self.current_hub: "Hub" | None = start_hub
+
+        self.path: list["Hub"] = []
+        self.path_index: int = 0
+
+        self.is_in_transition: bool = False
+        self.destination: "Hub" | None = None
+        self.remaining_turns: int = 0
+        self.delivered: bool = False
+
 
 class Hub:
     def __init__(self, name: str, coordinates: tuple[int, int], meta_data: list[str]) -> None:
@@ -19,6 +27,9 @@ class Hub:
         self.name: str = name
         self.meta_data: list[str] = meta_data
         self.connections_list: list[Connection] = []# ??
+        self.drones_occupation: int = 0
+        self.present_drones_list: list[Drone] = []
+
         nb_zone: int = 0
         nb_color: int = 0
         nb_max_drones: int = 0
@@ -79,6 +90,7 @@ class Hub:
 class FileContent:
     def __init__(self) -> None:
         self.nb_drones: int
+        self.drones_list: list[Drone] = []
         self.start_hub: Hub
         self.end_hub: Hub
         self.hubs_list: list[Hub] = []
