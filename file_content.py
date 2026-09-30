@@ -5,6 +5,8 @@ class Connection:
     def __init__(self, destination: "Hub", capacity: int) -> None:
         self.destination: "Hub" = destination
         self.capacity: int = capacity
+        self.drones_occupation: int = 0
+        self.present_drones_list: list["Drone"] = []
 
 
 class Drone:
