@@ -2,7 +2,8 @@ import sys
 
 from parsing.parsing import parsing_entry
 from file_content import FileContent
-from file_content import Drone
+from file_content import Drone, Hub
+from pathfinder.dijkstra import dijkstra
 
 
 if __name__ == "__main__":
@@ -47,5 +48,7 @@ if __name__ == "__main__":
         print(f"connected to {len(hub.connections_list)}")
         for connection in hub.connections_list:
             print(f"{connection.destination.name} (max_link_capacity : {connection.capacity})")
+
+    shortest_path: list[Hub] = dijkstra(my_file_content)
 
     sys.exit()

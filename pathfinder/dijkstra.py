@@ -1,4 +1,4 @@
-from file_content import Hub
+from file_content import Hub, Connection, Drone, FileContent
 
 
 def get_cost(hub: Hub) -> int:
@@ -8,3 +8,7 @@ def get_cost(hub: Hub) -> int:
         return 2
     else:
         return 1
+
+
+def dijkstra(my_file_content: FileContent) -> list[Hub]:
+    
