@@ -11,4 +11,7 @@ def get_cost(hub: Hub) -> int:
 
 
 def dijkstra(my_file_content: FileContent) -> list[Hub]:
-    
+    shortest_cost: dict = {}
+    for hub in my_file_content.hubs_list:
+        shortest_cost[hub.name] = float("inf")
+    shortest_cost["start"] = 0
