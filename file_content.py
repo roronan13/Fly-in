@@ -31,6 +31,7 @@ class Hub:
         self.connections_list: list[Connection] = []# ??
         self.drones_occupation: int = 0
         self.present_drones_list: list[Drone] = []
+        self.been_visited: bool = False
 
         nb_zone: int = 0
         nb_color: int = 0
