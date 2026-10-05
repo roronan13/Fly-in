@@ -15,3 +15,4 @@ def dijkstra(my_file_content: FileContent) -> list[Hub]:
     for hub in my_file_content.hubs_list:
         shortest_cost[hub.name] = float("inf")
     shortest_cost["start"] = 0
+
