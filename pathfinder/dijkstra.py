@@ -31,4 +31,11 @@ def dijkstra(my_file_content: FileContent) -> list[Hub]:
 
     current_hub.been_visited = True
 
+    next_hub: Hub | None = None
+
+    for hub in my_file_content.hubs_list:
+        if not hub.been_visited:
+            if next_hub is None or shortest_cost[hub.name] < shortest_cost[next_hub.name]:
+                next_hub = hub
+
     
