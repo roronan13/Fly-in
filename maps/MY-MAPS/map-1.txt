@@ -1,11 +1,14 @@
-# Easy Level 3: Basic capacity management
-nb_drones: 4
+# Easy Level 1: Simple linear path
+nb_drones: 2
 
-start_hub: start 0 0 [max_drones=4]
-hub: bottleneck 1 0 [zone=blocked]
-hub: wide_area 2 0 [color=blue max_drones=4]
+start_hub: start 0 0 [color=green]
+hub: waypoint1 1 0 [color=blue]
+hub: waypoint2 2 0 [color=blue zone_type=restricted]
 end_hub: goal 3 0 [color=red]
+hub: waypoint3 4 0 [zone_type=restricted]
 
-connection: start-bottleneck [max_link_capacity=4]
-connection: bottleneck-wide_area [max_link_capacity=4]
-connection: wide_area-goal [max_link_capacity=4]
+connection: start-waypoint1
+connection: waypoint1-waypoint2
+connection: waypoint2-goal
+connection: start-waypoint3
+connection: waypoint3-goal
