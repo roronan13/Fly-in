@@ -29,4 +29,6 @@ def dijkstra(my_file_content: FileContent) -> list[Hub]:
         if new_cost < shortest_cost[neighbour.name]:
             shortest_cost[neighbour.name] = new_cost
 
-        
+    current_hub.been_visited = True
+
+    
