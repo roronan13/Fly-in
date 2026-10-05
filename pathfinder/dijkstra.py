@@ -16,3 +16,17 @@ def dijkstra(my_file_content: FileContent) -> list[Hub]:
         shortest_cost[hub.name] = float("inf")
     shortest_cost["start"] = 0
 
+    current_hub: Hub = my_file_content.start_hub
+
+    for connection in current_hub.connections_list:
+        neighbour: Hub = connection.destination
+
+        if get_cost(neighbour) == -1:
+            continue
+
+        new_cost: int = shortest_cost[current_hub.name] + get_cost(neighbour)
+
+        if new_cost < shortest_cost[neighbour.name]:
+            shortest_cost[neighbour.name] = new_cost
+
+        

@@ -49,6 +49,6 @@ if __name__ == "__main__":
         for connection in hub.connections_list:
             print(f"{connection.destination.name} (max_link_capacity : {connection.capacity})")
 
-    shortest_path: list[Hub] = dijkstra(my_file_content)
+    # shortest_path: list[Hub] = dijkstra(my_file_content)
 
     sys.exit()
