@@ -1,3 +1,4 @@
+import sys
 from file_content import Hub, Connection, Drone, FileContent
 
 
@@ -14,7 +15,7 @@ def dijkstra(my_file_content: FileContent) -> list[Hub]:
     shortest_cost: dict = {}
     for hub in my_file_content.hubs_list:
         shortest_cost[hub.name] = float("inf")
-    shortest_cost["start"] = 0
+    shortest_cost[my_file_content.start_hub.name] = 0
 
     current_hub: Hub = my_file_content.start_hub
     previous_for_path: dict = {}
@@ -46,5 +47,17 @@ def dijkstra(my_file_content: FileContent) -> list[Hub]:
 
         current_hub = next_hub
 
-    shortest_past: list[Hub] = []
+    if not my_file_content.end_hub.been_visited:
+        print("There is no possible from start to end in this configuration !\n")
+        sys.exit()
+
+    shortest_path: list[Hub] = []
     current_hub = my_file_content.end_hub
+    while current_hub is not my_file_content.start_hub:
+        shortest_path.append(current_hub)
+        current_hub = previous_for_path[current_hub.name]
+
+    shortest_path.append(my_file_content.start_hub)
+    shortest_path.reverse()
+
+    return shortest_path
