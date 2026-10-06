@@ -53,4 +53,14 @@ if __name__ == "__main__":
     for hub in shortest_path:
         print(f"{hub.name}")
 
+    for drone in my_file_content.drones_list:
+        drone.path = shortest_path
+
+    # tempo
+    for drone in my_file_content.drones_list:
+        print(f"Drone {drone.id} : {drone.path[drone.path_index].name}")
+        drone.path_index += 1
+        print(f"Drone {drone.id} : {drone.path[drone.path_index].name}")
+    # tempo
+
     sys.exit()
