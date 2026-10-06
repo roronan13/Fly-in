@@ -2,6 +2,16 @@ import sys
 from file_content import Hub, Connection, Drone, FileContent
 
 
+def can_go_to_hub(destination: Hub, my_file_content: FileContent) -> bool:
+    if destination is my_file_content.start_hub or destination is my_file_content.end_hub:
+        return True
+
+    if destination.drones_occupation < destination.max_drones:
+        return True
+
+    return False
+
+
 def get_cost(hub: Hub) -> int:
     if hub.zone == "blocked":
         return -1
