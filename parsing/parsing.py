@@ -112,6 +112,22 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                 print("Something went wrong with the syntax of the file !\n")
                 return (False)
 
+            count_nb_drones: int = 0
+            for line in lines_list:
+                if line.count('[') > 1:
+                    print(f"For line {line} : invalid format (multiple '[') !")
+                    return False
+                if line.count(']') > 1:
+                    print(f"For line {line} : invalid format (multiple ']') !")
+                    return False
+                if line.startswith("nb_drones: "):
+                    count_nb_drones += 1
+
+            if count_nb_drones > 1:
+                print("nb_drones must be specified only once !")
+                return False
+
+
 # check nb drones
             nb_drones_line = lines_list[0].strip()
             # print(f"{lines_list[0]}\n")
