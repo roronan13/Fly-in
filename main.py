@@ -62,20 +62,38 @@ if __name__ == "__main__":
     print("")
     my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
     i: int = 1
-    while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
+    # while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
+    for i in range(10):
         print(f"\n--- TURN {i} ---")
+
+        moves = []
 
         for drone in my_file_content.drones_list:
             if drone.path_index < len(drone.path) - 1:
                 next_hub: Hub = drone.path[drone.path_index + 1]
 
                 if can_go_to_hub(next_hub, my_file_content):
-                    drone.path_index += 1
-                    drone.current_hub.drones_occupation -= 1
-                    drone.current_hub = next_hub
-                    next_hub.drones_occupation += 1
+                    moves.append((drone, next_hub))
+                    # drone.path_index += 1
+                    # drone.current_hub.drones_occupation -= 1
+                    # drone.current_hub = next_hub
+                    # next_hub.drones_occupation += 1
 
-            print(f"Drone {drone.id} : {drone.current_hub.name}")
+        accepted_moves = []
+        reserved_spots = {}
+
+            # print(f"Drone {drone.id} : {drone.current_hub.name}")
+        for drone, next_hub in moves:
+            if next_hub not in reserved_spots:
+                reserved_spots[next_hub] = 0
+
+            if next_hub.drones_occupation + reserved_spots[next_hub] < next_hub.max_drones:
+                accepted_moves.append((drone, next_hub))
+                reserved_spots[next_hub] += 1
+                # next_hub.drones_occupation += 1
+
+        for drone, next_hub in accepted_moves:
+            print(f"Drone {drone.id} va vers {next_hub.name}")
 
         i += 1
     # tempo
