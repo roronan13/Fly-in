@@ -40,6 +40,9 @@ if __name__ == "__main__":
     for i in range(my_file_content.nb_drones):
         drone: Drone = Drone(i, my_file_content.start_hub)
         my_file_content.drones_list.append(drone)
+    my_file_content.start_hub.max_drones = my_file_content.nb_drones
+    my_file_content.end_hub.max_drones = my_file_content.nb_drones    
+    
     print(f"nb_drones : {len(my_file_content.drones_list)}")
     for drone in my_file_content.drones_list:
         print(f"{drone.id}")
@@ -69,8 +72,13 @@ if __name__ == "__main__":
         moves = []
 
         for drone in my_file_content.drones_list:
+
+            print(f"Drone {drone.id} : {drone.current_hub.name}, path_index={drone.path_index}")
+
             if drone.path_index < len(drone.path) - 1:
                 next_hub: Hub = drone.path[drone.path_index + 1]
+
+                print(f" veut aller vers {next_hub.name}")
 
                 if can_go_to_hub(next_hub, my_file_content):
                     moves.append((drone, next_hub))
@@ -93,9 +101,19 @@ if __name__ == "__main__":
                 # next_hub.drones_occupation += 1
 
         for drone, next_hub in accepted_moves:
+            former_hub = drone.current_hub
+
+            drone.path_index += 1
+            former_hub.drones_occupation -= 1
+            drone.current_hub = next_hub
+            next_hub.drones_occupation += 1
+
             print(f"Drone {drone.id} va vers {next_hub.name}")
 
         i += 1
     # tempo
+
+    print(f"{my_file_content.start_hub.max_drones}")
+    print(f"{my_file_content.end_hub.max_drones}")
 
     sys.exit()
