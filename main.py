@@ -2,7 +2,7 @@ import sys
 
 from parsing.parsing import parsing_entry
 from file_content import FileContent
-from file_content import Drone, Hub
+from file_content import Drone, Hub, Connection
 from pathfinder.dijkstra import dijkstra, can_go_to_hub
 
 
@@ -17,31 +17,12 @@ if __name__ == "__main__":
     if not parsing_entry(sys.argv[1], my_file_content):
         print("END.\n")
         sys.exit()
-
-    # my_file_content.hubs_list.append(my_file_content.start_hub)
-    # my_file_content.hubs_list.append(my_file_content.end_hub)
-
-    # print(f"{len(my_file_content.hubs_list)}")
-    # for hub in my_file_content.hubs_list:
-    #                         print(f"{hub.name}")
-
-    # print(f"{my_file_content.nb_drones}\n")
-    # print(f"{my_file_content.start_hub.name}")
-    # print(f"{my_file_content.start_hub.coordinates}")
-    # print(f"{my_file_content.start_hub.zone}")
-    # print(f"{my_file_content.start_hub.color}")
-    # print(f"{my_file_content.start_hub.max_drones}\n")
-    # print(f"{my_file_content.end_hub.name}")
-    # print(f"{my_file_content.end_hub.coordinates}")
-    # print(f"{my_file_content.end_hub.zone}")
-    # print(f"{my_file_content.end_hub.color}")
-    # print(f"{my_file_content.end_hub.max_drones}\n")
     
     for i in range(my_file_content.nb_drones):
         drone: Drone = Drone(i, my_file_content.start_hub)
         my_file_content.drones_list.append(drone)
     my_file_content.start_hub.max_drones = my_file_content.nb_drones
-    my_file_content.end_hub.max_drones = my_file_content.nb_drones    
+    my_file_content.end_hub.max_drones = my_file_content.nb_drones
     
     print(f"nb_drones : {len(my_file_content.drones_list)}")
     for drone in my_file_content.drones_list:
@@ -61,15 +42,14 @@ if __name__ == "__main__":
     for drone in my_file_content.drones_list:
         drone.path = shortest_path
 
-    # tempo
     print("")
     my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
     i: int = 1
-    # while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
-    for i in range(10):
+    while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
+    # for i in range(10):
         print(f"\n--- TURN {i} ---")
 
-        moves = []
+        movements = []
 
         for drone in my_file_content.drones_list:
 
@@ -80,27 +60,45 @@ if __name__ == "__main__":
 
                 print(f" veut aller vers {next_hub.name}")
 
-                if can_go_to_hub(next_hub, my_file_content):
-                    moves.append((drone, next_hub))
+                connection: Connection = None
+
+                for found_connection in drone.current_hub.connections_list:
+                    if found_connection.destination is next_hub:
+                        connection = found_connection
+                        break
+
+                print(f"connection trouvee : capacite : {connection.capacity}")
+
+                # if can_go_to_hub(next_hub, my_file_content):
+                movements.append((drone, next_hub, connection))
                     # drone.path_index += 1
                     # drone.current_hub.drones_occupation -= 1
                     # drone.current_hub = next_hub
                     # next_hub.drones_occupation += 1
 
+        departures = {}
+
+        for drone, next_hub, connection in movements:
+            former_hub = drone.current_hub
+
+            if former_hub not in departures:
+                departures[former_hub] = 0
+
+            departures[former_hub] += 1
+
         accepted_moves = []
         reserved_spots = {}
 
-            # print(f"Drone {drone.id} : {drone.current_hub.name}")
-        for drone, next_hub in moves:
+        for drone, next_hub, connection in movements:
             if next_hub not in reserved_spots:
                 reserved_spots[next_hub] = 0
 
-            if next_hub.drones_occupation + reserved_spots[next_hub] < next_hub.max_drones:
-                accepted_moves.append((drone, next_hub))
+            if next_hub.drones_occupation + reserved_spots[next_hub] - departures.get(next_hub, 0) < next_hub.max_drones:
+                accepted_moves.append((drone, next_hub, connection))
                 reserved_spots[next_hub] += 1
                 # next_hub.drones_occupation += 1
 
-        for drone, next_hub in accepted_moves:
+        for drone, next_hub, connection in accepted_moves:
             former_hub = drone.current_hub
 
             drone.path_index += 1
@@ -111,9 +109,5 @@ if __name__ == "__main__":
             print(f"Drone {drone.id} va vers {next_hub.name}")
 
         i += 1
-    # tempo
-
-    print(f"{my_file_content.start_hub.max_drones}")
-    print(f"{my_file_content.end_hub.max_drones}")
 
     sys.exit()

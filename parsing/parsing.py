@@ -75,7 +75,7 @@ def check_hubs_lines(line: str) -> tuple[bool, tuple[str, tuple[int, int], list[
                     nb_color += 1
                 if meta_data.startswith("zone="):
                     nb_zone += 1
-                if meta_data.startswith("nb_max_drones="):
+                if meta_data.startswith("max_drones="):
                     nb_max_drones += 1
 
 # check pas deux fois meta data
