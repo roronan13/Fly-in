@@ -122,6 +122,9 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                     return False
                 if line.startswith("nb_drones: "):
                     count_nb_drones += 1
+                if not line.startswith("nb_drones: ") and not line.startswith("start_hub: ") and not line.startswith("end_hub: ") and not line.startswith("hub: ") and not line.startswith("connection: "):
+                    print(f"For line {line} : line can't be used !")
+                    return False
 
             if count_nb_drones > 1:
                 print("nb_drones must be specified only once !")
@@ -276,8 +279,8 @@ def parsing_entry(file: str, my_file_content: FileContent) -> bool:
                             except ValueError as e:
                                 print(f"For line {line} : max_link_capacity must be an int ! {e} \n")
                                 return (False)
-                            if max_capacity_int < 0:
-                                print(f"For line {line} : max_link_capacity must be positive ! \n")
+                            if max_capacity_int < 1:
+                                print(f"For line {line} : max_link_capacity must be strictly positive ! \n")
                                 return (False)
 
                     for hub in my_file_content.hubs_list:

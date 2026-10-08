@@ -79,8 +79,8 @@ class Hub:
                         sys.exit()
                     try:
                         self.max_drones: int = int(one_meta_data.split("=")[1])
-                        if self.max_drones < 0:
-                            print(f"{self.name} : max_drones must be a positive int ! \n")
+                        if self.max_drones < 1:
+                            print(f"{self.name} : max_drones must be strictly positive ! \n")
                             sys.exit()
                         nb_max_drones += 1
                     except ValueError as e:

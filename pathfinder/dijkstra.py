@@ -58,7 +58,7 @@ def dijkstra(my_file_content: FileContent) -> list[Hub]:
         current_hub = next_hub
 
     if not my_file_content.end_hub.been_visited:
-        print("There is no possible from start to end in this configuration !\n")
+        print("There is no possible way from start to end in this configuration !\n")
         sys.exit()
 
     shortest_path: list[Hub] = []
