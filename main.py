@@ -52,7 +52,7 @@ if __name__ == "__main__":
         # liste temporaire des deplacements envisages a ce tour
         potential_movements = []
 
-                        # FAIRE AVANCER LES DRONES DEJA EN TRANSIT 
+                        # FAIRE AVANCER LES DRONES DEJA EN TRANSIT --------------------------------------
 
         # on examine chaque drone pour savoir s'il est en transit 
         for drone in my_file_content.drones_list:
@@ -60,8 +60,9 @@ if __name__ == "__main__":
             if drone.is_in_transition:
                 # on diminue le nombre de tours restants avant son arrivee
                 drone.remaining_turns -= 1
+                
 
-                # lorsque le compteur atteint 0 le drone doit arriver
+                # si le compteur atteint 0 le drone doit arriver
                 if drone.remaining_turns == 0:
                     # on recupere le hub de destination et la connection que le drone occupe pendant son transit
                     destination: Hub = drone.destination
@@ -81,9 +82,13 @@ if __name__ == "__main__":
                     drone.destination = None
                     drone.current_connection = None
 
-                    print(f"Drone {drone.id} arrive a {destination.name}")
+                    print(f"Drone {drone.id} est arrive a {destination.name}")
 
-                        # IDENTIFIER LES DEPLACEMENTS ENVISAGEABLES
+                        # IDENTIFIER LES DEPLACEMENTS ENVISAGEABLES ------------------------------------
+
+            # on ne veut pas qu'un drone en transit commence un autre deplacement 
+            if drone.is_in_transition:
+                continue
 
             print(f"Drone {drone.id} : {drone.current_hub.name}, path_index={drone.path_index}")
 
@@ -111,6 +116,8 @@ if __name__ == "__main__":
                     # drone.current_hub = next_hub
                     # next_hub.drones_occupation += 1
 
+                        # COMPTER LES DEPARTS DE CHAQUE HUB ---------------------------------------------
+
         # ce dict associe chaque hub au nombre de drones qui envisagent de le quitter pendant ce tour 
         departures = {}
 
@@ -123,7 +130,7 @@ if __name__ == "__main__":
 
             departures[former_hub] += 1
 
-                        # VERIFIER LES CAPACITES DES HUBS ET DES CONNECTIONS 
+                        # VERIFIER LES CAPACITES DES HUBS ET DES CONNECTIONS ----------------------------
 
         # continent les mouvements acceptes 
         validated_moves = []
@@ -136,24 +143,33 @@ if __name__ == "__main__":
 
         # on verifie chaque mouvement qui est envisage 
         for drone, next_hub, connection in potential_movements:
-            # on initialise le compteur 
+            # on initialise le compteur de reservations du hub si cest la premiere fois qu'on le rencontre 
             if next_hub not in reserved_spots:
                 reserved_spots[next_hub] = 0
-
+            # on initialise le compteur de reservations de la connection
             if connection not in reserved_connections:
                 reserved_connections[connection] = 0
 
+            # on calcule l'occupation prevue du hub d'arrivee (les reservations representent les drones dont le deplacement a ete accepte)
             hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] - departures.get(next_hub, 0) < next_hub.max_drones
-
+            # on calcule le nombre de drones deja reserves sur cette connection
             connection_enough_space: bool = reserved_connections[connection] < connection.capacity
 
+            # le mouvement est accepte si les deux conditions de capacite sont respectees 
             if hub_enough_space and connection_enough_space:
+                # on ajoute le mouvement a la liste des deplacements valides 
                 validated_moves.append((drone, next_hub, connection))
+                # on reserve une place dans le hub d'arrivee
                 reserved_spots[next_hub] += 1
+                # on reserve une place sur la connection 
                 reserved_connections[connection] += 1
                 # next_hub.drones_occupation += 1
 
+                        # EXECUTER LES DEPLACEMENTS VALIDES -------------------------------------------
+
+        # tous les mouvements ont ete evalues, on applique les deplacements qui ont ete acceptes 
         for drone, next_hub, connection in validated_moves:
+            # on memorise le hub que le drone va quitter 
             former_hub = drone.current_hub
 
             drone.path_index += 1
