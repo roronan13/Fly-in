@@ -50,7 +50,7 @@ if __name__ == "__main__":
         print(f"\n--- TURN {i} ---")
 
         # liste temporaire des deplacements envisages a ce tour
-        potential_movements = []
+        potential_movements: list[tuple[Drone, Hub, Connection]] = []
 
                         # FAIRE AVANCER LES DRONES DEJA EN TRANSIT --------------------------------------
 
@@ -119,11 +119,11 @@ if __name__ == "__main__":
                         # COMPTER LES DEPARTS DE CHAQUE HUB ---------------------------------------------
 
         # ce dict associe chaque hub au nombre de drones qui envisagent de le quitter pendant ce tour
-        departures = {}
+        departures: dict[Hub, int] = {}
 
         for drone, next_hub, connection in potential_movements:
             # le hub de depart du mouvement est le hub actuel du drone
-            former_hub = drone.current_hub
+            former_hub: Hub = drone.current_hub
 
             if former_hub not in departures:
                 departures[former_hub] = 0
@@ -133,13 +133,13 @@ if __name__ == "__main__":
                         # VERIFIER LES CAPACITES DES HUBS ET DES CONNECTIONS ----------------------------
 
         # continent les mouvements acceptes
-        validated_moves = []
+        validated_moves: list[tuple[Drone, Hub, Connection]] = []
 
         # nombre de places reservees dans chaque hub par les mouvements acceptes pendant ce tour
-        reserved_spots = {}
+        reserved_spots: dict[Hub, int] = {}
 
         # nombre de passages reserves sur chaque connection par les mouvements acceptes pendant ce tour
-        reserved_connections = {}
+        reserved_connections: dict[Connection, int] = {}
 
         # on verifie chaque mouvement qui est envisage
         for drone, next_hub, connection in potential_movements:
@@ -170,7 +170,7 @@ if __name__ == "__main__":
         # tous les mouvements ont ete evalues, on applique les deplacements qui ont ete acceptes
         for drone, next_hub, connection in validated_moves:
             # on memorise le hub que le drone va quitter
-            former_hub = drone.current_hub
+            former_hub: Hub = drone.current_hub
 
             drone.path_index += 1
             former_hub.drones_occupation -= 1
