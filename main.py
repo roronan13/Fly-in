@@ -153,7 +153,7 @@ if __name__ == "__main__":
             # on calcule l'occupation prevue du hub d'arrivee (les reservations representent les drones dont le deplacement a ete accepte)
             hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] - departures.get(next_hub, 0) < next_hub.max_drones
             # on calcule le nombre de drones deja reserves sur cette connection
-            connection_enough_space: bool = reserved_connections[connection] < connection.capacity
+            connection_enough_space: bool = connection.drones_occupation + reserved_connections[connection] < connection.capacity
 
             # le mouvement est accepte si les deux conditions de capacite sont respectees
             if hub_enough_space and connection_enough_space:
