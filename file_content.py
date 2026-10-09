@@ -20,6 +20,7 @@ class Drone:
         self.is_in_transition: bool = False
         self.destination: "Hub" | None = None
         self.remaining_turns: int = 0
+        self.current_connection: Connection | None = None
         self.delivered: bool = False
 
 
