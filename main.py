@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
                 print(f" veut aller vers {next_hub.name}")
 
-                connection: Connection = None
+                connection: Connection | None = None
 
                 # on recherche la connection entre le hub actuel et le prochain hub
                 for found_connection in drone.current_hub.connections_list:
