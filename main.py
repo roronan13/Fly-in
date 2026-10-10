@@ -23,10 +23,11 @@ if __name__ == "__main__":
         my_file_content.drones_list.append(drone)
     my_file_content.start_hub.max_drones = my_file_content.nb_drones
     my_file_content.end_hub.max_drones = my_file_content.nb_drones
+    my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
 
-    print(f"nb_drones : {len(my_file_content.drones_list)}")
-    for drone in my_file_content.drones_list:
-        print(f"{drone.id}")
+    # print(f"nb_drones : {len(my_file_content.drones_list)}")
+    # for drone in my_file_content.drones_list:
+    #     print(f"{drone.id}")
 
     # for hub in my_file_content.hubs_list:
     #     print(f"\n\n{hub.name} {hub.coordinates} zone_type: {hub.zone}, color: {hub.color}, max_drones: {hub.max_drones}")
@@ -35,15 +36,16 @@ if __name__ == "__main__":
     #         print(f"{connection.destination.name} (max_link_capacity : {connection.capacity})")
 
     shortest_path: list[Hub] = dijkstra(my_file_content)
+    for drone in my_file_content.drones_list:
+        drone.path = shortest_path
+        my_file_content.start_hub.present_drones_list.append(drone)
+    
     print("")
     for hub in shortest_path:
         print(f"{hub.name}")
 
-    for drone in my_file_content.drones_list:
-        drone.path = shortest_path
-
     print("")
-    my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
+
     i: int = 1
     while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
     # for i in range(10):
@@ -174,11 +176,31 @@ if __name__ == "__main__":
 
             drone.path_index += 1
             former_hub.drones_occupation -= 1
-            drone.current_hub = next_hub
-            next_hub.drones_occupation += 1
+            former_hub.present_drones_list.remove(drone)
 
-            print("")
-            print(f"Drone {drone.id} va vers {next_hub.name}")
+            if next_hub.zone == "restricted":
+                drone.is_in_transition = True
+                drone.destination = next_hub
+                drone.current_connection = connection
+                drone.remaining_turns = 2
+
+                connection.drones_occupation += 1
+                connection.present_drones_list.append(drone)
+
+                print(f"Drone {drone.id} commence son transit vers {next_hub.name}")
+
+            else:
+                drone.current_hub = next_hub
+
+                next_hub.drones_occupation += 1
+                next_hub.present_drones_list.append(drone)
+
+                print("")
+                print(f"Drone {drone.id} va vers {next_hub.name}")
+
+        print("\nOccupation des hubs :")
+        for hub in my_file_content.hubs_list:
+            print(f"{hub.name}: {hub.drones_occupation}/{hub.max_drones}")
 
         i += 1
 
