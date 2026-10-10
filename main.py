@@ -39,7 +39,7 @@ if __name__ == "__main__":
     for drone in my_file_content.drones_list:
         drone.path = shortest_path
         my_file_content.start_hub.present_drones_list.append(drone)
-    
+
     print("")
     for hub in shortest_path:
         print(f"{hub.name}")
@@ -53,6 +53,8 @@ if __name__ == "__main__":
 
         # liste temporaire des deplacements envisages a ce tour
         potential_movements: list[tuple[Drone, Hub, Connection]] = []
+        # liste des drones qui doivent arriver a destination pendant ce tour
+        arrivals_this_turn: list[tuple[Drone, Hub, Connection]] = []
 
                         # FAIRE AVANCER LES DRONES DEJA EN TRANSIT --------------------------------------
 
@@ -63,28 +65,32 @@ if __name__ == "__main__":
                 # on diminue le nombre de tours restants avant son arrivee
                 drone.remaining_turns -= 1
 
-
                 # si le compteur atteint 0 le drone doit arriver
                 if drone.remaining_turns == 0:
                     # on recupere le hub de destination et la connection que le drone occupe pendant son transit
                     destination: Hub = drone.destination
                     connection: Connection = drone.current_connection
 
-                    # le drone libere la connection : on diminue son occupation et on le retire de la liste
-                    connection.drones_occupation -= 1
-                    connection.present_drones_list.remove(drone)
+                    # on enregistre l'arrivee pour la traiter pendant la phase d'execution
+                    arrivals_this_turn.append((drone, destination, connection))
 
-                    # le drone arrive a sa destination
-                    drone.current_hub = destination
-                    destination.drones_occupation += 1
-                    destination.present_drones_list.append(drone)
+                    # # le drone libere la connection : on diminue son occupation et on le retire de la liste
+                    # connection.drones_occupation -= 1
+                    # connection.present_drones_list.remove(drone)
 
-                    # le drone n'est plus en transition : on efface les informations
-                    drone.is_in_transition = False
-                    drone.destination = None
-                    drone.current_connection = None
+                    # # le drone arrive a sa destination
+                    # drone.current_hub = destination
+                    # destination.drones_occupation += 1
+                    # destination.present_drones_list.append(drone)
 
-                    print(f"Drone {drone.id} est arrive a {destination.name}")
+                    # # le drone n'est plus en transition : on efface les informations
+                    # drone.is_in_transition = False
+                    # drone.destination = None
+                    # drone.current_connection = None
+
+                    # print(f"Drone {drone.id} est arrive a {destination.name}")
+
+                    print(f"Drone {drone.id} doit arriver a {destination.name}")
 
                         # IDENTIFIER LES DEPLACEMENTS ENVISAGEABLES ------------------------------------
 
@@ -117,6 +123,18 @@ if __name__ == "__main__":
                     # drone.current_hub.drones_occupation -= 1
                     # drone.current_hub = next_hub
                     # next_hub.drones_occupation += 1
+
+                        # COMPTER LES CONNECTIONS QUI SERONT LIBEREES --------------------------------------
+
+        # dictionnaire comptant les places qui vont etre liberees par les drones arrivant a destination pdt ce tour
+        connections_being_freed: dict[Connection, int] = {}
+
+        for drone, destination, connection in arrivals_this_turn:
+            if connection not in connections_being_freed:
+                connections_being_freed[connection] = 0
+
+                # ce drone va liberer une place sur cette connection
+            connections_being_freed[connection] += 1
 
                         # COMPTER LES DEPARTS DE CHAQUE HUB ---------------------------------------------
 
@@ -155,7 +173,8 @@ if __name__ == "__main__":
             # on calcule l'occupation prevue du hub d'arrivee (les reservations representent les drones dont le deplacement a ete accepte)
             hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] - departures.get(next_hub, 0) < next_hub.max_drones
             # on calcule le nombre de drones deja reserves sur cette connection
-            connection_enough_space: bool = connection.drones_occupation + reserved_connections[connection] < connection.capacity
+            connection_frees: int = connections_being_freed.get(connection, 0)
+            connection_enough_space: bool = connection.drones_occupation + reserved_connections[connection] - connection_frees < connection.capacity
 
             # le mouvement est accepte si les deux conditions de capacite sont respectees
             if hub_enough_space and connection_enough_space:
@@ -182,7 +201,7 @@ if __name__ == "__main__":
                 drone.is_in_transition = True
                 drone.destination = next_hub
                 drone.current_connection = connection
-                drone.remaining_turns = 2
+                drone.remaining_turns = 1
 
                 connection.drones_occupation += 1
                 connection.present_drones_list.append(drone)
@@ -197,6 +216,23 @@ if __name__ == "__main__":
 
                 print("")
                 print(f"Drone {drone.id} va vers {next_hub.name}")
+
+                        # TRAITER LES ARRIVEES DES DRONES EN TRANSIT --------------------------------------------
+
+        # on applique les arrivees enregistrees au debut du tour
+        for drone, destination, connection in arrivals_this_turn:
+            connection.drones_occupation -= 1
+            connection.present_drones_list.remove(drone)
+
+            drone.current_hub = destination
+            destination.drones_occupation += 1
+            destination.present_drones_list.append(drone)
+
+            drone.is_in_transition = False
+            drone.destination = None
+            drone.current_connection = None
+
+            print(f"Drone {drone.id} est arrive a {drone.current_hub.name}")
 
         print("\nOccupation des hubs :")
         for hub in my_file_content.hubs_list:
