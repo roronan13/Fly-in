@@ -249,7 +249,10 @@ if __name__ == "__main__":
 
         # on verifie que l'occupation de chaque hub respecte sa capacite
         for hub in my_file_content.hubs_list:
-            if hub is my_file_content.
+            if hub is my_file_content.start_hub or hub is my_file_content.end_hub:
+                continue
+
+            assert hub.drones_occupation <= hub.max_drones, (f"Capacite depassee dans {hub.name} : {hub.drones_occupation}/{hub.max_drones}")
 
         print("\nOccupation des hubs :")
         for hub in my_file_content.hubs_list:
