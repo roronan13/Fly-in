@@ -126,6 +126,17 @@ if __name__ == "__main__":
 
                         # COMPTER LES CONNECTIONS QUI SERONT LIBEREES --------------------------------------
 
+        # dictionnaire qui compte les drones qui vont arriver dans chaque hub ce tour
+        arrivals_by_hub: dict[Hub, int] = {}
+        for (drone, destination, connection) in arrivals_this_turn:
+            if destination not in arrivals_by_hub:
+                arrivals_by_hub[destination] = 0
+
+            arrivals_by_hub[destination] += 1
+
+        for hub, count in arrivals_by_hub.items():
+            print(f"Arrivees prevues a {hub.name} : {count}")
+
         # dictionnaire comptant les places qui vont etre liberees par les drones arrivant a destination pdt ce tour
         connections_being_freed: dict[Connection, int] = {}
 
@@ -170,8 +181,10 @@ if __name__ == "__main__":
             if connection not in reserved_connections:
                 reserved_connections[connection] = 0
 
+            # calcule les places necessaires aux arrivees de ce tour
+            planned_arrivals: int = arrivals_by_hub.get(next_hub, 0)
             # on calcule l'occupation prevue du hub d'arrivee (les reservations representent les drones dont le deplacement a ete accepte)
-            hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] - departures.get(next_hub, 0) < next_hub.max_drones
+            hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals - departures.get(next_hub, 0) < next_hub.max_drones
             # on calcule le nombre de drones deja reserves sur cette connection
             connection_frees: int = connections_being_freed.get(connection, 0)
             connection_enough_space: bool = connection.drones_occupation + reserved_connections[connection] - connection_frees < connection.capacity
@@ -233,6 +246,10 @@ if __name__ == "__main__":
             drone.current_connection = None
 
             print(f"Drone {drone.id} est arrive a {drone.current_hub.name}")
+
+        # on verifie que l'occupation de chaque hub respecte sa capacite
+        for hub in my_file_content.hubs_list:
+            if hub is my_file_content.
 
         print("\nOccupation des hubs :")
         for hub in my_file_content.hubs_list:
