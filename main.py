@@ -183,11 +183,15 @@ if __name__ == "__main__":
 
             # calcule les places necessaires aux arrivees de ce tour
             planned_arrivals: int = arrivals_by_hub.get(next_hub, 0)
-            # on calcule l'occupation prevue du hub d'arrivee (les reservations representent les drones dont le deplacement a ete accepte)
-            hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals - departures.get(next_hub, 0) < next_hub.max_drones
+            # on calcule l'occupation prevue du hub d'arrivee, sans compter les departs qui n'ont pas encore ete valides
+            hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals < next_hub.max_drones
+            # hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals - departures.get(next_hub, 0) < next_hub.max_drones
             # on calcule le nombre de drones deja reserves sur cette connection
             connection_frees: int = connections_being_freed.get(connection, 0)
             connection_enough_space: bool = connection.drones_occupation + reserved_connections[connection] - connection_frees < connection.capacity
+
+            # on affiche la decision prise pour chaque mouvement envisage
+            print(f"Drone {drone.id} : {drone.current_hub.name} -> {next_hub.name} | place_hub={hub_enough_space}, place_connection={connection_enough_space}")
 
             # le mouvement est accepte si les deux conditions de capacite sont respectees
             if hub_enough_space and connection_enough_space:
