@@ -192,6 +192,9 @@ if __name__ == "__main__":
             accepted_departures: dict[Hub, int] = {}
             accepted_arrivals: dict[Hub, int] = {}
 
+            # compter les nouveaux transits accaptes vers les zones restricted
+            new_transits: dict[Hub, int] = {}
+
             for drone, next_hub, connection in validated_moves:
                 former_hub: Hub = drone.current_hub
 
