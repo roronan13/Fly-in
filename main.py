@@ -147,61 +147,130 @@ if __name__ == "__main__":
                 # ce drone va liberer une place sur cette connection
             connections_being_freed[connection] += 1
 
-                        # COMPTER LES DEPARTS DE CHAQUE HUB ---------------------------------------------
+        #                 # COMPTER LES DEPARTS DE CHAQUE HUB ---------------------------------------------
 
-        # ce dict associe chaque hub au nombre de drones qui envisagent de le quitter pendant ce tour
-        departures: dict[Hub, int] = {}
+        # # ce dict associe chaque hub au nombre de drones qui envisagent de le quitter pendant ce tour
+        # departures: dict[Hub, int] = {}
 
-        for drone, next_hub, connection in potential_movements:
-            # le hub de depart du mouvement est le hub actuel du drone
-            former_hub: Hub = drone.current_hub
+        # for drone, next_hub, connection in potential_movements:
+        #     # le hub de depart du mouvement est le hub actuel du drone
+        #     former_hub: Hub = drone.current_hub
 
-            if former_hub not in departures:
-                departures[former_hub] = 0
+        #     if former_hub not in departures:
+        #         departures[former_hub] = 0
 
-            departures[former_hub] += 1
+        #     departures[former_hub] += 1
 
                         # VERIFIER LES CAPACITES DES HUBS ET DES CONNECTIONS ----------------------------
 
-        # continent les mouvements acceptes
-        validated_moves: list[tuple[Drone, Hub, Connection]] = []
-
-        # nombre de places reservees dans chaque hub par les mouvements acceptes pendant ce tour
-        reserved_spots: dict[Hub, int] = {}
-
-        # nombre de passages reserves sur chaque connection par les mouvements acceptes pendant ce tour
+        # selectionner les mouvements que les connections permettent
+        candidate_moves: list[tuple[Drone, Hub, Connection]] = []
         reserved_connections: dict[Connection, int] = {}
 
-        # on verifie chaque mouvement qui est envisage
         for drone, next_hub, connection in potential_movements:
-            # on initialise le compteur de reservations du hub si cest la premiere fois qu'on le rencontre
-            if next_hub not in reserved_spots:
-                reserved_spots[next_hub] = 0
-            # on initialise le compteur de reservations de la connection
-            if connection not in reserved_connections:
-                reserved_connections[connection] = 0
-
-            # calcule les places necessaires aux arrivees de ce tour
-            planned_arrivals: int = arrivals_by_hub.get(next_hub, 0)
-            # on calcule l'occupation prevue du hub d'arrivee, sans compter les departs qui n'ont pas encore ete valides
-            hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals < next_hub.max_drones
-            # hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals - departures.get(next_hub, 0) < next_hub.max_drones
-            # on calcule le nombre de drones deja reserves sur cette connection
             connection_frees: int = connections_being_freed.get(connection, 0)
-            connection_enough_space: bool = connection.drones_occupation + reserved_connections[connection] - connection_frees < connection.capacity
+            reserved: int = reserved_connections.get(connection, 0)
 
-            # on affiche la decision prise pour chaque mouvement envisage
-            print(f"Drone {drone.id} : {drone.current_hub.name} -> {next_hub.name} | place_hub={hub_enough_space}, place_connection={connection_enough_space}")
+            # une connection peut etre reutilisee si un drone la libere ce tour
+            if connection.drones_occupation + reserved - connection_frees < connection.capacity:
+                candidate_moves.append((drone, next_hub, connection))
+                reserved_connections[connection] = reserved + 1
 
-            # le mouvement est accepte si les deux conditions de capacite sont respectees
-            if hub_enough_space and connection_enough_space:
-                # on ajoute le mouvement a la liste des deplacements valides
-                validated_moves.append((drone, next_hub, connection))
-                # on reserve une place dans le hub d'arrivee
-                reserved_spots[next_hub] += 1
-                # on reserve une place sur la connection
-                reserved_connections[connection] += 1
-                # next_hub.drones_occupation += 1
+        # eliminer les mouvements qui depassent la capacite finale des hubs
+        validated_moves: list[tuple[Drone, Hub, Connection]] = candidate_moves.copy()
+
+        # on compte les drones deja en transit vers chaque hub restricted
+        incoming_transits: dict[Hub, int] = {}
+        for drone in my_file_content.drones_list:
+            if drone.is_in_transition and drone.remaining_turns > 0:
+                destination = drone.destination
+
+                incoming_transits[destination] = incoming_transits.get(destination, 0) + 1
+
+        while True:
+            # compter uniquement les departs des mouvements encore retenus
+            accepted_departures: dict[Hub, int] = {}
+            accepted_arrivals: dict[Hub, int] = {}
+
+            for drone, next_hub, connection in validated_moves:
+                former_hub: Hub = drone.current_hub
+
+                accepted_departures[former_hub] = accepted_departures.get(former_hub, 0) + 1
+
+                # un drone entrant en zone restricted reste sur la connection ce tour
+                if next_hub.zone != "restricted":
+                    accepted_arrivals[next_hub] = accepted_arrivals.get(next_hub, 0) + 1
+
+            # cherche un hub dont la capacite finale serait depassee
+            overloaded_hub: Hub | None = None
+
+            for hub in my_file_content.hubs_list:
+                if hub is my_file_content.start_hub or hub is my_file_content.end_hub:
+                    continue
+
+                final_occupation: int = hub.drones_occupation + accepted_arrivals.get(hub, 0) + arrivals_by_hub.get(hub, 0) - accepted_departures.get(hub, 0)
+
+                if final_occupation > hub.max_drones:
+                    overloaded_hub = hub
+                    break
+
+            # tous les hubs respectent leur capacite : validation terminee
+            if overloaded_hub is None:
+                break
+
+            # retirer un mouvement entrant dans le hub surcharge
+            movement_to_cancel: tuple[Drone, Hub, Connection] | None = None
+            for movement in reversed(validated_moves):
+                drone, next_hub, connection = movement
+                if next_hub is overloaded_hub and next_hub.zone != "restricted":
+                    movement_to_cancel = movement
+                    break
+
+            # aucun mouvement supprimable : la situation doit etre examinee
+            if movement_to_cancel is None:
+                raise RuntimeError(f"Impossible de respecter la capacite de {overloaded_hub.name}")
+
+            validated_moves.remove(movement_to_cancel)
+
+        # # continent les mouvements acceptes
+        # validated_moves: list[tuple[Drone, Hub, Connection]] = []
+
+        # # nombre de places reservees dans chaque hub par les mouvements acceptes pendant ce tour
+        # reserved_spots: dict[Hub, int] = {}
+
+        # # nombre de passages reserves sur chaque connection par les mouvements acceptes pendant ce tour
+        # reserved_connections: dict[Connection, int] = {}
+
+        # # on verifie chaque mouvement qui est envisage
+        # for drone, next_hub, connection in potential_movements:
+        #     # on initialise le compteur de reservations du hub si cest la premiere fois qu'on le rencontre
+        #     if next_hub not in reserved_spots:
+        #         reserved_spots[next_hub] = 0
+        #     # on initialise le compteur de reservations de la connection
+        #     if connection not in reserved_connections:
+        #         reserved_connections[connection] = 0
+
+        #     # calcule les places necessaires aux arrivees de ce tour
+        #     planned_arrivals: int = arrivals_by_hub.get(next_hub, 0)
+        #     # on calcule l'occupation prevue du hub d'arrivee, sans compter les departs qui n'ont pas encore ete valides
+        #     hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals < next_hub.max_drones
+        #     # hub_enough_space: bool = next_hub.drones_occupation + reserved_spots[next_hub] + planned_arrivals - departures.get(next_hub, 0) < next_hub.max_drones
+        #     # on calcule le nombre de drones deja reserves sur cette connection
+        #     connection_frees: int = connections_being_freed.get(connection, 0)
+        #     connection_enough_space: bool = connection.drones_occupation + reserved_connections[connection] - connection_frees < connection.capacity
+
+        #     # on affiche la decision prise pour chaque mouvement envisage
+        #     print(f"Drone {drone.id} : {drone.current_hub.name} -> {next_hub.name} | place_hub={hub_enough_space}, place_connection={connection_enough_space}")
+
+        #     # le mouvement est accepte si les deux conditions de capacite sont respectees
+        #     if hub_enough_space and connection_enough_space:
+        #         # on ajoute le mouvement a la liste des deplacements valides
+        #         validated_moves.append((drone, next_hub, connection))
+        #         # on reserve une place dans le hub d'arrivee
+        #         reserved_spots[next_hub] += 1
+        #         # on reserve une place sur la connection
+        #         reserved_connections[connection] += 1
+        #         # next_hub.drones_occupation += 1
 
                         # EXECUTER LES DEPLACEMENTS VALIDES -------------------------------------------
 
