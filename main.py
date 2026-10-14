@@ -19,6 +19,49 @@ def get_final_occupation(hub: Hub, validated_moves: list[tuple[Drone, Hub, Conne
     return occupation
 
 
+def get_possible_departures(hub: Hub, drones_to_check: list[Drone], validated_moves: list[tuple[Drone, Hub, Connection]], arrivals_by_hub: dict[Hub, int]) -> int:
+    departures: int = 0
+    reserved_connections: dict[Connection, int] = {}
+    reserved_hubs: dict[Hub, int] = {}
+
+    for drone in drones_to_check:
+        if drone.path_index >= len(drone.path) - 1:
+            continue
+
+        next_hub: Hub = drone.path[drone.path_index + 1]
+
+        connection: Connection | None = None
+
+        for found_connection in hub.connections_list:
+            if found_connection.destination is next_hub:
+                connection = found_connection
+                break
+        if connection is None:
+            continue
+
+        # capacite disponible sur la connection au prochain tour
+        reserved: int = reserved_connections.get(connection, 0)
+        if reserved >= connection.capacity:
+            continue
+
+        # occupation du hub de destination apres le tour actuel
+        next_turn_occupation: int = get_final_occupation(next_hub, validated_moves, arrivals_by_hub)
+
+        # un depart vers une zone restricted commence un transit : il ne prend pas tout de suite une place dans le hub
+        if next_hub.zone != "restricted":
+            already_reserved: int = reserved_hubs.get(next_hub, 0)
+
+            if next_turn_occupation + already_reserved >= next_hub.max_drones:
+                continue
+
+            reserved_hubs[next_hub] = already_reserved + 1
+
+        reserved_connections[connection] = reserved + 1
+        departures += 1
+
+    return departures
+
+
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
@@ -178,32 +221,15 @@ if __name__ == "__main__":
         # eliminer les mouvements qui depassent la capacite finale des hubs
         validated_moves: list[tuple[Drone, Hub, Connection]] = candidate_moves.copy()
 
-        # on compte les drones deja en transit vers chaque hub restricted
-        incoming_transits: dict[Hub, int] = {}
-        for drone in my_file_content.drones_list:
-            if drone.is_in_transition and drone.remaining_turns > 0:
-                destination = drone.destination
-
-                incoming_transits[destination] = incoming_transits.get(destination, 0) + 1
-
         while True:
-            # compter uniquement les departs des mouvements encore retenus
-            accepted_departures: dict[Hub, int] = {}
-            accepted_arrivals: dict[Hub, int] = {}
-
             # compter les nouveaux transits accaptes vers les zones restricted
             new_transits: dict[Hub, int] = {}
 
             for drone, next_hub, connection in validated_moves:
                 former_hub: Hub = drone.current_hub
 
-                accepted_departures[former_hub] = accepted_departures.get(former_hub, 0) + 1
-
-                # les drones vers une zone normale arrivent ce tour
-                if next_hub.zone != "restricted":
-                    accepted_arrivals[next_hub] = accepted_arrivals.get(next_hub, 0) + 1
+                if next_hub.zone == "restricted":   
                 # les drones vers une zone restricted arriveront au tour suivant 
-                else:
                     new_transits[next_hub] = new_transits.get(next_hub, 0) + 1
 
             # cherche un hub dont la capacite finale serait depassee
@@ -213,7 +239,7 @@ if __name__ == "__main__":
                 if hub is my_file_content.start_hub or hub is my_file_content.end_hub:
                     continue
 
-                final_occupation: int = hub.drones_occupation + accepted_arrivals.get(hub, 0) + arrivals_by_hub.get(hub, 0) - accepted_departures.get(hub, 0)
+                final_occupation: int = get_final_occupation(hub, validated_moves, arrivals_by_hub)
 
                 # verifier que l'occupation de ce tour respecte la capacite
                 if final_occupation > hub.max_drones:
@@ -248,15 +274,7 @@ if __name__ == "__main__":
                             drones_to_check.append(drone)
 
                     # compter les drones qui possedent une sortie
-                    for drone in drones_to_check:
-                        if drone.path_index < len(drone.path) - 1:
-                            next_hub = drone.path[drone.path_index + 1]
-                            for connection in hub.connections_list:
-                                if connection.destination is next_hub:
-                                    # une connection de sortie doit avoir une capacite positive
-                                    if connection.capacity > 0:
-                                        possible_departures += 1
-                                    break
+                    possible_departures = get_possible_departures(hub, drones_to_check, validated_moves, arrivals_by_hub)
 
                     # occupation prevue au tour suivant
                     future_occupation: int = final_occupation + future_arrivals - possible_departures
