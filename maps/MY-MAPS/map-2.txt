@@ -1,0 +1,13 @@
+nb_drones: 2
+
+start_hub: start 0 0 [color=green]
+hub: left 1 0 [color=blue max_drones=1]
+hub: right 1 1 [color=blue max_drones=1]
+hub: merge 2 0 [color=blue max_drones=1]
+end_hub: goal 3 0 [color=red]
+
+connection: start-left
+connection: start-right
+connection: left-merge
+connection: right-merge
+connection: merge-goal

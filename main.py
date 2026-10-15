@@ -19,7 +19,57 @@ def get_final_occupation(hub: Hub, validated_moves: list[tuple[Drone, Hub, Conne
     return occupation
 
 
-def get_possible_departures(hub: Hub, drones_to_check: list[Drone], validated_moves: list[tuple[Drone, Hub, Connection]], arrivals_by_hub: dict[Hub, int]) -> int:
+def can_leave_next_turn(hub: Hub, validated_moves: list[tuple[Drone, Hub, Connection]], arrivals_by_hub: dict[Hub, int], my_file_content: FileContent, visited: set[Hub] | None = None) -> bool:
+    if visited is None:
+        visited = set()
+
+    if hub in visited:
+        return False
+
+    visited.add(hub)
+
+    # la fin peut toujours accueillir les drones
+    if hub is my_file_content.end_hub:
+        return True
+
+    # chercher un drone qui sera present dans ce hub
+    drones_present: list[Drone] = []
+
+    for drone in hub.present_drones_list:
+        if not any(move[0] is drone for move in validated_moves):
+            drones_present.append(drone)
+
+    for drone, destination, connection in validated_moves:
+        if destination is hub and hub.zone != "restricted":
+            drones_present.append(drone)
+
+    for drone in drones_present:
+        if drone.path_index >= len(drone.path) - 1:
+            continue
+
+        next_hub = drone.path[drone.path_index + 1]
+
+        for connection in hub.connections_list:
+            if connection.destination is not next_hub:
+                continue
+            if connection.capacity <= 0:
+                continue
+            # si le prochain hub est restricted le drone peut commencer son transit
+            if next_hub.zone == "restricted":
+                return True
+
+            next_turn_occupation: int = get_final_occupation(next_hub, validated_moves, arrivals_by_hub)
+            if next_turn_occupation < next_hub.max_drones:
+                return True
+
+            # le prochain hub est plein, peut il lui meme liberer une place ?
+            if can_leave_next_turn(next_hub, validated_moves, arrivals_by_hub, my_file_content, visited.copy()):
+                return True
+
+    return False
+
+
+def get_possible_departures(hub: Hub, drones_to_check: list[Drone], validated_moves: list[tuple[Drone, Hub, Connection]], arrivals_by_hub: dict[Hub, int], my_file_content: FileContent) -> int:
     departures: int = 0
     reserved_connections: dict[Connection, int] = {}
     reserved_hubs: dict[Hub, int] = {}
@@ -52,7 +102,8 @@ def get_possible_departures(hub: Hub, drones_to_check: list[Drone], validated_mo
             already_reserved: int = reserved_hubs.get(next_hub, 0)
 
             if next_turn_occupation + already_reserved >= next_hub.max_drones:
-                continue
+                if not can_leave_next_turn(next_hub, validated_moves, arrivals_by_hub, my_file_content):
+                    continue
 
             reserved_hubs[next_hub] = already_reserved + 1
 
@@ -274,7 +325,7 @@ if __name__ == "__main__":
                             drones_to_check.append(drone)
 
                     # compter les drones qui possedent une sortie
-                    possible_departures = get_possible_departures(hub, drones_to_check, validated_moves, arrivals_by_hub)
+                    possible_departures = get_possible_departures(hub, drones_to_check, validated_moves, arrivals_by_hub, my_file_content)
 
                     # occupation prevue au tour suivant
                     future_occupation: int = final_occupation + future_arrivals - possible_departures
