@@ -21,6 +21,26 @@ def get_cost(hub: Hub) -> int:
         return 1
 
 
+def find_multiple_paths(my_file_content: FileContent, max_paths: int = 5) -> list[list[Hub]]:
+    multiple_paths: list[list[Hub]] = []
+
+    # fonction recursive pour explorer les differents chemins possibles
+    def explore(current_hub: Hub, current_path: list[Hub]) -> None:
+        if current_hub is my_file_content.end_hub:
+            multiple_paths.append(current_path.copy())
+            return
+
+        # parcourir toutes les connections du hub actuel
+        for connection in current_hub.connections_list:
+            neighbour: Hub = connection.destination
+
+            if get_cost(neighbour) == -1:
+                continue
+            if neighbour in current_path:
+                continue
+
+            
+
 def dijkstra(my_file_content: FileContent) -> list[Hub]:
     shortest_cost: dict = {}
     for hub in my_file_content.hubs_list:
