@@ -224,7 +224,7 @@ if __name__ == "__main__":
                         connection = found_connection
                         break
 
-                print(f"connection trouvee : capacite : {connection.capacity}")
+                # print(f"connection trouvee : capacite : {connection.capacity}")
 
                 # if can_go_to_hub(next_hub, my_file_content):
                 # on memorise le deplacement envisage : les capacites seront verifies pour l'ensemble des mouvements
@@ -382,7 +382,7 @@ if __name__ == "__main__":
                 next_hub.drones_occupation += 1
                 next_hub.present_drones_list.append(drone)
 
-                print("")
+                # print("")
                 print(f"Drone {drone.id} va vers {next_hub.name}")
 
                         # TRAITER LES ARRIVEES DES DRONES EN TRANSIT --------------------------------------------
@@ -422,9 +422,9 @@ if __name__ == "__main__":
             for connection in hub.connections_list:
                 assert connection.drones_occupation == len(connection.present_drones_list), (f"Incoherence sur la connection {hub.name} -> {connection.destination.name}")
 
-        print("\nOccupation des hubs :")
-        for hub in my_file_content.hubs_list:
-            print(f"{hub.name}: {hub.drones_occupation}/{hub.max_drones}")
+        # print("\nOccupation des hubs :")
+        # for hub in my_file_content.hubs_list:
+        #     print(f"{hub.name}: {hub.drones_occupation}/{hub.max_drones}")
 
         i += 1
 
