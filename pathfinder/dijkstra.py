@@ -39,7 +39,13 @@ def find_multiple_paths(my_file_content: FileContent, max_paths: int = 5) -> lis
             if neighbour in current_path:
                 continue
 
-            
+            # ajouter le hub voisin et continuer l'exploration
+            current_path.append(neighbour)
+            explore(neighbour, current_path)
+
+    # commencer l'exploration depuis le hub de depart
+    explore(my_file_content.start_hub, [my_file_content.start_hub])
+
 
 def dijkstra(my_file_content: FileContent) -> list[Hub]:
     shortest_cost: dict = {}
