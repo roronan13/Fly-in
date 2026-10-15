@@ -43,8 +43,15 @@ def find_multiple_paths(my_file_content: FileContent, max_paths: int = 5) -> lis
             current_path.append(neighbour)
             explore(neighbour, current_path)
 
+            # retirer le hub pour pouvoir tester un autre chemin
+            current_path.pop()
+
     # commencer l'exploration depuis le hub de depart
     explore(my_file_content.start_hub, [my_file_content.start_hub])
+    # trier les chemins du moins couteux au plus couteux
+    multiple_paths.sort(key=lambda path: sum(get_cost(hub) for hub in path[1:]))
+
+    return multiple_paths[:max_paths]
 
 
 def dijkstra(my_file_content: FileContent) -> list[Hub]:

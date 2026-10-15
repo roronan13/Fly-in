@@ -3,7 +3,7 @@ import sys
 from parsing.parsing import parsing_entry
 from file_content import FileContent
 from file_content import Drone, Hub, Connection
-from pathfinder.dijkstra import dijkstra
+from pathfinder.dijkstra import dijkstra, find_multiple_paths
 
 
 def get_final_occupation(hub: Hub, validated_moves: list[tuple[Drone, Hub, Connection]], arrivals_by_hub: dict[Hub, int]) -> int:
@@ -134,6 +134,10 @@ if __name__ == "__main__":
     my_file_content.start_hub.max_drones = my_file_content.nb_drones
     my_file_content.end_hub.max_drones = my_file_content.nb_drones
     my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
+
+    multiple_paths = find_multiple_paths(my_file_content)
+    for i, path in enumerate(multiple_paths):
+        print(f"Chemin {i + 1} : {' -> '.join(hub.name for hub in path)}")
 
     # print(f"nb_drones : {len(my_file_content.drones_list)}")
     # for drone in my_file_content.drones_list:
