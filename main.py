@@ -151,8 +151,11 @@ if __name__ == "__main__":
 
     shortest_path: list[Hub] = dijkstra(my_file_content)
     for drone in my_file_content.drones_list:
-        drone.path = shortest_path
+        # drone.path = shortest_path
         my_file_content.start_hub.present_drones_list.append(drone)
+
+    for i, drone in enumerate(my_file_content.drones_list):
+        drone.path = multiple_paths[i % len(multiple_paths)]
 
     print("")
     for hub in shortest_path:
