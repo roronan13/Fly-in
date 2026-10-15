@@ -44,10 +44,13 @@ def can_leave_next_turn(hub: Hub, validated_moves: list[tuple[Drone, Hub, Connec
             drones_present.append(drone)
 
     for drone in drones_present:
-        if drone.path_index >= len(drone.path) - 1:
+        moved_this_turn = any(moving_drone is drone for moving_drone, destination, connection in validated_moves)
+
+        next_index: int = drone.path_index + (1 if moved_this_turn else 0)
+        if next_index >= len(drone.path) - 1:
             continue
 
-        next_hub = drone.path[drone.path_index + 1]
+        next_hub = drone.path[next_index + 1]
 
         for connection in hub.connections_list:
             if connection.destination is not next_hub:
