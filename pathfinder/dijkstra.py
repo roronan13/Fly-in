@@ -55,6 +55,9 @@ def find_multiple_paths(my_file_content: FileContent, max_paths: int = 5) -> lis
 
 
 def dijkstra(my_file_content: FileContent) -> list[Hub]:
+    for hub in my_file_content.hubs_list:
+        hub.been_visited = False
+
     shortest_cost: dict = {}
     for hub in my_file_content.hubs_list:
         shortest_cost[hub.name] = float("inf")

@@ -4,6 +4,7 @@ from parsing.parsing import parsing_entry
 from file_content import FileContent
 from file_content import Drone, Hub, Connection
 from pathfinder.dijkstra import dijkstra, find_multiple_paths
+from copy import deepcopy
 
 
 def get_final_occupation(hub: Hub, validated_moves: list[tuple[Drone, Hub, Connection]], arrivals_by_hub: dict[Hub, int]) -> int:
@@ -120,7 +121,8 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
     i: int = 1
 
     while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
-        print(f"\n--- TURN {i} ---")
+        if details:
+            print(f"\n--- TURN {i} ---")
 
         # liste temporaire des deplacements envisages a ce tour
         potential_movements: list[tuple[Drone, Hub, Connection]] = []
@@ -145,7 +147,7 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
                     # on enregistre l'arrivee pour la traiter pendant la phase d'execution
                     arrivals_this_turn.append((drone, destination, connection))
 
-                    print(f"Drone {drone.id} doit arriver a {destination.name}")
+                    # print(f"Drone {drone.id} doit arriver a {destination.name}")
 
                         # IDENTIFIER LES DEPLACEMENTS ENVISAGEABLES ------------------------------------
 
@@ -153,13 +155,13 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
             if drone.is_in_transition:
                 continue
 
-            print(f"Drone {drone.id} : {drone.current_hub.name}, path_index={drone.path_index}")
+            # print(f"Drone {drone.id} : {drone.current_hub.name}, path_index={drone.path_index}")
 
             # si le drone nest pas encore arrive a la fin
             if drone.path_index < len(drone.path) - 1:
                 next_hub: Hub = drone.path[drone.path_index + 1]
 
-                print(f" veut aller vers {next_hub.name}")
+                # print(f" veut aller vers {next_hub.name}")
 
                 connection: Connection | None = None
 
@@ -182,8 +184,8 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
 
             arrivals_by_hub[destination] += 1
 
-        for hub, count in arrivals_by_hub.items():
-            print(f"Arrivees prevues a {hub.name} : {count}")
+        # for hub, count in arrivals_by_hub.items():
+        #     print(f"Arrivees prevues a {hub.name} : {count}")
 
         # dictionnaire comptant les places qui vont etre liberees par les drones arrivant a destination pdt ce tour
         connections_being_freed: dict[Connection, int] = {}
@@ -312,7 +314,7 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
                 connection.drones_occupation += 1
                 connection.present_drones_list.append(drone)
 
-                print(f"Drone {drone.id} commence son transit vers {next_hub.name}")
+                # print(f"Drone {drone.id} commence son transit vers {next_hub.name}")
 
             else:
                 drone.current_hub = next_hub
@@ -321,7 +323,7 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
                 next_hub.present_drones_list.append(drone)
 
                 # print("")
-                print(f"Drone {drone.id} va vers {next_hub.name}")
+                # print(f"Drone {drone.id} va vers {next_hub.name}")
 
                         # TRAITER LES ARRIVEES DES DRONES EN TRANSIT --------------------------------------------
 
@@ -338,7 +340,7 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
             drone.destination = None
             drone.current_connection = None
 
-            print(f"Drone {drone.id} est arrive a {drone.current_hub.name}")
+            # print(f"Drone {drone.id} est arrive a {drone.current_hub.name}")
 
         # on verifie que l'occupation de chaque hub respecte sa capacite
         for hub in my_file_content.hubs_list:
@@ -360,9 +362,10 @@ def simulate(my_file_content: FileContent, details: bool = True) -> int:
             for connection in hub.connections_list:
                 assert connection.drones_occupation == len(connection.present_drones_list), (f"Incoherence sur la connection {hub.name} -> {connection.destination.name}")
 
-        # print("\nOccupation des hubs :")
-        # for hub in my_file_content.hubs_list:
-        #     print(f"{hub.name}: {hub.drones_occupation}/{hub.max_drones}")
+        if details:
+            print("\nOccupation des hubs :")
+            for hub in my_file_content.hubs_list:
+                print(f"{hub.name}: {hub.drones_occupation}/{hub.max_drones}")
 
         i += 1
 
@@ -388,6 +391,7 @@ if __name__ == "__main__":
     my_file_content.end_hub.max_drones = my_file_content.nb_drones
     my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
 
+    shortest_path: list[Hub] = dijkstra(my_file_content)
     multiple_paths = find_multiple_paths(my_file_content)
     for i, path in enumerate(multiple_paths):
         print(f"Chemin {i + 1} : {' -> '.join(hub.name for hub in path)}")
@@ -402,20 +406,49 @@ if __name__ == "__main__":
     #     for connection in hub.connections_list:
     #         print(f"{connection.destination.name} (max_link_capacity : {connection.capacity})")
 
-    shortest_path: list[Hub] = dijkstra(my_file_content)
     for drone in my_file_content.drones_list:
         # drone.path = shortest_path
         my_file_content.start_hub.present_drones_list.append(drone)
 
-    for i, drone in enumerate(my_file_content.drones_list):
-        drone.path = multiple_paths[i % len(multiple_paths)]
-
     print("\n --- DIJKSTRA :")
     for hub in shortest_path:
         print(f"{hub.name}")
-
     print("")
-    nb_turns: int = simulate(my_file_content)
-    print(f"\nSimultation terminee en {nb_turns} tours.")
+
+    initial_state: FileContent = deepcopy(my_file_content)
+    strategies: list[str] = ["dijkstra", "2_paths", "3_paths", "5_paths"]
+    best_strategy: str | None
+    best_nb_turns: int = float("inf")
+    nb_turns: int
+
+    for strategy in strategies:
+        test_content: FileContent = deepcopy(my_file_content)
+
+        found_paths: list[list[Hub]]
+        if strategy == "dijkstra":
+            found_paths = [dijkstra(test_content)]
+        else:
+            found_paths = find_multiple_paths(test_content)
+
+        nb_paths: int
+        if strategy == "dijkstra":
+            nb_paths = 1
+        elif strategy == "2_paths":
+            nb_paths = min(2, len(found_paths))
+        elif strategy == "3_paths":
+            nb_paths = min(3, len(found_paths))
+        else:
+            nb_paths = min(5, len(found_paths))
+        for i, drone in enumerate(test_content.drones_list):
+            drone.path = found_paths[i % nb_paths]
+
+        nb_turns = simulate(test_content, False)
+        print(f"{strategy} : {nb_turns} tours")
+
+        if nb_turns < best_nb_turns:
+            best_nb_turns = nb_turns
+            best_strategy = strategy
+
+    print(f"Meilleure strategie : {best_strategy} -> {best_nb_turns} tours")
 
     sys.exit()
