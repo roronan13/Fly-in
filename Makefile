@@ -22,4 +22,14 @@ lint-strict:
 	mypy . --strict
 
 clean:
-	find . -type d -name 
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name ".mypy_cache" -exec rm -rf {} +
+	find . -type d -name ".pytest_cache" -exec rm -rf {} +
+	find . -type d -name "*.pyc" -delete
+
+fclean: clean
+	rm -rf build dist *.egg-info
+
+re: fclean run
+
+.PHONY: install run debug lint lint-strict clean fclean re
