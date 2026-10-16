@@ -25,10 +25,10 @@ class Drone:
 
 
 class OutputToken:
-    def __init__(self, id: int, hub: "Hub", connection: Connection) -> None:
+    def __init__(self, id: int, hub: "Hub", connection: str = "") -> None:
         self.id: int = id
         self.hub: "Hub" = hub
-        self.connection: Connection = connection
+        self.connection_name: str = connection
 
 
 class Hub:

@@ -298,10 +298,11 @@ def simulate(my_file_content: FileContent,  output_list: list[list[OutputToken]]
 
                         # EXECUTER LES DEPLACEMENTS VALIDES -------------------------------------------
 
+        former_hub: Hub = drone.current_hub
         # tous les mouvements ont ete evalues, on applique les deplacements qui ont ete acceptes
         for drone, next_hub, connection in validated_moves:
             # on memorise le hub que le drone va quitter
-            former_hub: Hub = drone.current_hub
+            former_hub = drone.current_hub
 
             drone.path_index += 1
             former_hub.drones_occupation -= 1
@@ -324,7 +325,7 @@ def simulate(my_file_content: FileContent,  output_list: list[list[OutputToken]]
                 next_hub.drones_occupation += 1
                 next_hub.present_drones_list.append(drone)
 
-                output_token: OutputToken = OutputToken(drone.id, drone.current_hub, None)
+                output_token: OutputToken = OutputToken(drone.id, drone.current_hub, "")
                 output_list[output_list_index].append(output_token)
 
                 # print("")
@@ -341,7 +342,8 @@ def simulate(my_file_content: FileContent,  output_list: list[list[OutputToken]]
             destination.drones_occupation += 1
             destination.present_drones_list.append(drone)
 
-            output_token: OutputToken = OutputToken(drone.id, None, drone.current_connection)
+            connection_name: str = f"{former_hub.name}-{drone.current_hub.name}"
+            output_token: OutputToken = OutputToken(drone.id, None, connection_name)
             output_list[output_list_index].append(output_token)
 
             drone.is_in_transition = False
@@ -473,12 +475,15 @@ if __name__ == "__main__":
     output_list.clear()
     for i, drone in enumerate(my_file_content.drones_list):
         drone.path = selected_paths[i % len(selected_paths)]
-    nb_turns = simulate(my_file_content, output_list, False)
+    nb_turns = simulate(my_file_content, output_list, True)
     print(f"\nSimulation terminee en {nb_turns} tours.\n")
 
     for output in output_list:
         for one_output in output:
-            print(f"D{one_output.id}-{one_output.hub.name} ", end="")
+            if one_output.connection_name == "":
+                print(f"D{one_output.id}-{one_output.hub.name} ", end="")
+            else:
+                print(f"D{one_output.id}-{one_output.connection_name} ", end="")
         print("")
 
     sys.exit()
