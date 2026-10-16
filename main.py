@@ -415,10 +415,9 @@ if __name__ == "__main__":
         print(f"{hub.name}")
     print("")
 
-    initial_state: FileContent = deepcopy(my_file_content)
     strategies: list[str] = ["dijkstra", "2_paths", "3_paths", "5_paths"]
-    best_strategy: str | None
-    best_nb_turns: int = float("inf")
+    best_strategy: str | None = None
+    best_nb_turns: float = float("inf")
     nb_turns: int
 
     for strategy in strategies:
@@ -450,5 +449,20 @@ if __name__ == "__main__":
             best_strategy = strategy
 
     print(f"Meilleure strategie : {best_strategy} -> {best_nb_turns} tours")
+
+    selected_paths: list[list[Hub]]
+    if best_strategy == "dijkstra":
+        selected_paths = [shortest_path]
+    elif best_strategy == "2_paths":
+        selected_paths = multiple_paths[:2]
+    elif best_strategy == "3_paths":
+        selected_paths = multiple_paths[:3]
+    else:
+        selected_paths = multiple_paths[:5]
+
+    for i, drone in enumerate(my_file_content.drones_list):
+        drone.path = selected_paths[i % len(selected_paths)]
+    nb_turns = simulate(my_file_content, True)
+    print(f"Simulation terminee en {nb_turns} tours.")
 
     sys.exit()
