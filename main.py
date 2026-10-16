@@ -463,6 +463,6 @@ if __name__ == "__main__":
     for i, drone in enumerate(my_file_content.drones_list):
         drone.path = selected_paths[i % len(selected_paths)]
     nb_turns = simulate(my_file_content, True)
-    print(f"Simulation terminee en {nb_turns} tours.")
+    print(f"\nSimulation terminee en {nb_turns} tours.")
 
     sys.exit()
