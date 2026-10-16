@@ -117,10 +117,12 @@ def get_possible_departures(hub: Hub, drones_to_check: list[Drone], validated_mo
     return departures
 
 
-def simulate(my_file_content: FileContent, details: bool = True, output_list: list[OutputToken]) -> int:
+def simulate(my_file_content: FileContent,  output_list: list[list[OutputToken]], details: bool = True) -> int:
     i: int = 1
+    output_list_index: int = 0
 
     while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
+        output_list.append([])
         if details:
             print(f"\n--- TURN {i} ---")
 
@@ -323,7 +325,7 @@ def simulate(my_file_content: FileContent, details: bool = True, output_list: li
                 next_hub.present_drones_list.append(drone)
 
                 output_token: OutputToken = OutputToken(drone.id, drone.current_hub, None)
-                output_list.append(output_token)
+                output_list[output_list_index].append(output_token)
 
                 # print("")
                 # print(f"Drone {drone.id} va vers {next_hub.name}")
@@ -338,6 +340,9 @@ def simulate(my_file_content: FileContent, details: bool = True, output_list: li
             drone.current_hub = destination
             destination.drones_occupation += 1
             destination.present_drones_list.append(drone)
+
+            output_token: OutputToken = OutputToken(drone.id, None, drone.current_connection)
+            output_list[output_list_index].append(output_token)
 
             drone.is_in_transition = False
             drone.destination = None
@@ -371,6 +376,7 @@ def simulate(my_file_content: FileContent, details: bool = True, output_list: li
                 print(f"{hub.name}: {hub.drones_occupation}/{hub.max_drones}")
 
         i += 1
+        output_list_index += 1
 
     return i - 1
 
@@ -396,7 +402,7 @@ if __name__ == "__main__":
 
     shortest_path: list[Hub] = dijkstra(my_file_content)
     multiple_paths = find_multiple_paths(my_file_content)
-    output_list: list[OutputToken] = []
+    output_list: list[list[OutputToken]] = []
     for i, path in enumerate(multiple_paths):
         print(f"Chemin {i + 1} : {' -> '.join(hub.name for hub in path)}")
 
@@ -445,7 +451,7 @@ if __name__ == "__main__":
         for i, drone in enumerate(test_content.drones_list):
             drone.path = found_paths[i % nb_paths]
 
-        nb_turns = simulate(test_content, False, output_list)
+        nb_turns = simulate(test_content, output_list, False)
         print(f"{strategy} : {nb_turns} tours")
 
         if nb_turns < best_nb_turns:
@@ -464,11 +470,15 @@ if __name__ == "__main__":
     else:
         selected_paths = multiple_paths[:5]
 
-    for output in output_list:
-        output_list.remove(output)
+    output_list.clear()
     for i, drone in enumerate(my_file_content.drones_list):
         drone.path = selected_paths[i % len(selected_paths)]
-    nb_turns = simulate(my_file_content, False, output_list)
-    print(f"\nSimulation terminee en {nb_turns} tours.")
+    nb_turns = simulate(my_file_content, output_list, False)
+    print(f"\nSimulation terminee en {nb_turns} tours.\n")
+
+    for output in output_list:
+        for one_output in output:
+            print(f"D{one_output.id}-{one_output.hub.name} ", end="")
+        print("")
 
     sys.exit()
