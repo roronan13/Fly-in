@@ -116,56 +116,10 @@ def get_possible_departures(hub: Hub, drones_to_check: list[Drone], validated_mo
     return departures
 
 
-if __name__ == "__main__":
-
-    if len(sys.argv) < 2:
-        print("NO FILE.\n")
-        sys.exit()
-
-    my_file_content: FileContent = FileContent()
-
-    if not parsing_entry(sys.argv[1], my_file_content):
-        print("END.\n")
-        sys.exit()
-
-    for i in range(my_file_content.nb_drones):
-        drone: Drone = Drone(i, my_file_content.start_hub)
-        my_file_content.drones_list.append(drone)
-    my_file_content.start_hub.max_drones = my_file_content.nb_drones
-    my_file_content.end_hub.max_drones = my_file_content.nb_drones
-    my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
-
-    multiple_paths = find_multiple_paths(my_file_content)
-    for i, path in enumerate(multiple_paths):
-        print(f"Chemin {i + 1} : {' -> '.join(hub.name for hub in path)}")
-
-    # print(f"nb_drones : {len(my_file_content.drones_list)}")
-    # for drone in my_file_content.drones_list:
-    #     print(f"{drone.id}")
-
-    # for hub in my_file_content.hubs_list:
-    #     print(f"\n\n{hub.name} {hub.coordinates} zone_type: {hub.zone}, color: {hub.color}, max_drones: {hub.max_drones}")
-    #     print(f"connected to {len(hub.connections_list)}")
-    #     for connection in hub.connections_list:
-    #         print(f"{connection.destination.name} (max_link_capacity : {connection.capacity})")
-
-    shortest_path: list[Hub] = dijkstra(my_file_content)
-    for drone in my_file_content.drones_list:
-        # drone.path = shortest_path
-        my_file_content.start_hub.present_drones_list.append(drone)
-
-    for i, drone in enumerate(my_file_content.drones_list):
-        drone.path = multiple_paths[i % len(multiple_paths)]
-
-    print("")
-    for hub in shortest_path:
-        print(f"{hub.name}")
-
-    print("")
-
+def simulate(my_file_content: FileContent, details: bool = True) -> int:
     i: int = 1
+
     while not my_file_content.end_hub.drones_occupation == my_file_content.nb_drones:
-    # for i in range(10):
         print(f"\n--- TURN {i} ---")
 
         # liste temporaire des deplacements envisages a ce tour
@@ -191,22 +145,6 @@ if __name__ == "__main__":
                     # on enregistre l'arrivee pour la traiter pendant la phase d'execution
                     arrivals_this_turn.append((drone, destination, connection))
 
-                    # # le drone libere la connection : on diminue son occupation et on le retire de la liste
-                    # connection.drones_occupation -= 1
-                    # connection.present_drones_list.remove(drone)
-
-                    # # le drone arrive a sa destination
-                    # drone.current_hub = destination
-                    # destination.drones_occupation += 1
-                    # destination.present_drones_list.append(drone)
-
-                    # # le drone n'est plus en transition : on efface les informations
-                    # drone.is_in_transition = False
-                    # drone.destination = None
-                    # drone.current_connection = None
-
-                    # print(f"Drone {drone.id} est arrive a {destination.name}")
-
                     print(f"Drone {drone.id} doit arriver a {destination.name}")
 
                         # IDENTIFIER LES DEPLACEMENTS ENVISAGEABLES ------------------------------------
@@ -231,15 +169,8 @@ if __name__ == "__main__":
                         connection = found_connection
                         break
 
-                # print(f"connection trouvee : capacite : {connection.capacity}")
-
-                # if can_go_to_hub(next_hub, my_file_content):
                 # on memorise le deplacement envisage : les capacites seront verifies pour l'ensemble des mouvements
                 potential_movements.append((drone, next_hub, connection))
-                    # drone.path_index += 1
-                    # drone.current_hub.drones_occupation -= 1
-                    # drone.current_hub = next_hub
-                    # next_hub.drones_occupation += 1
 
                         # COMPTER LES CONNECTIONS QUI SERONT LIBEREES --------------------------------------
 
@@ -434,5 +365,57 @@ if __name__ == "__main__":
         #     print(f"{hub.name}: {hub.drones_occupation}/{hub.max_drones}")
 
         i += 1
+
+    return i - 1
+
+
+if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print("NO FILE.\n")
+        sys.exit()
+
+    my_file_content: FileContent = FileContent()
+
+    if not parsing_entry(sys.argv[1], my_file_content):
+        print("END.\n")
+        sys.exit()
+
+    for i in range(my_file_content.nb_drones):
+        drone: Drone = Drone(i, my_file_content.start_hub)
+        my_file_content.drones_list.append(drone)
+    my_file_content.start_hub.max_drones = my_file_content.nb_drones
+    my_file_content.end_hub.max_drones = my_file_content.nb_drones
+    my_file_content.start_hub.drones_occupation = my_file_content.nb_drones
+
+    multiple_paths = find_multiple_paths(my_file_content)
+    for i, path in enumerate(multiple_paths):
+        print(f"Chemin {i + 1} : {' -> '.join(hub.name for hub in path)}")
+
+    # print(f"nb_drones : {len(my_file_content.drones_list)}")
+    # for drone in my_file_content.drones_list:
+    #     print(f"{drone.id}")
+
+    # for hub in my_file_content.hubs_list:
+    #     print(f"\n\n{hub.name} {hub.coordinates} zone_type: {hub.zone}, color: {hub.color}, max_drones: {hub.max_drones}")
+    #     print(f"connected to {len(hub.connections_list)}")
+    #     for connection in hub.connections_list:
+    #         print(f"{connection.destination.name} (max_link_capacity : {connection.capacity})")
+
+    shortest_path: list[Hub] = dijkstra(my_file_content)
+    for drone in my_file_content.drones_list:
+        # drone.path = shortest_path
+        my_file_content.start_hub.present_drones_list.append(drone)
+
+    for i, drone in enumerate(my_file_content.drones_list):
+        drone.path = multiple_paths[i % len(multiple_paths)]
+
+    print("\n --- DIJKSTRA :")
+    for hub in shortest_path:
+        print(f"{hub.name}")
+
+    print("")
+    nb_turns: int = simulate(my_file_content)
+    print(f"\nSimultation terminee en {nb_turns} tours.")
 
     sys.exit()
