@@ -24,6 +24,13 @@ class Drone:
         self.delivered: bool = False
 
 
+class OutputToken:
+    def __init__(self, id: int, hub: "Hub", connection: Connection) -> None:
+        self.id: int = id
+        self.hub: "Hub" = hub
+        self.connection: Connection = connection
+
+
 class Hub:
     def __init__(self, name: str, coordinates: tuple[int, int], meta_data: list[str]) -> None:
         self.coordinates: tuple[int, int] = coordinates
